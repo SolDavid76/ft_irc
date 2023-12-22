@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/22 15:05:44 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/22 16:01:33 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,11 @@
 
 User::User(int socket)
 {
-	this->_socket.fd = socket;
-	this->_socket.events = POLLIN;
-	this->_socket.revents = 0;
+	pollfd tmp;
+	tmp.fd = socket;
+	tmp.events = POLLIN;
+	tmp.revents = 0;
+	this->_socket = tmp;
 	this->_nickname = "";
 	this->_username = "";
 }

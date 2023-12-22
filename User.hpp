@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/22 15:27:20 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/22 15:54:57 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ class User
 
 		void readSocket(void);
 	// private:
-		int _socket;
+		pollfd _socket;
 		std::string _nickname;
 		std::string _username;
 		std::string _buffer;
