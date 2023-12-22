@@ -5,96 +5,82 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/12/20 15:33:33 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/21 10:14:07 by djanusz          ###   ########.fr       */
+/*   Created: 2023/12/22 14:33:03 by djanusz           #+#    #+#             */
+/*   Updated: 2023/12/22 15:28:02 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "User.hpp"
+#include "Server.hpp"
 
-void User::new_connection(int socket, std::string info)
+void User::readSocket(void)
 {
-	std::string buf;
-	this->_socket = socket;
-	this->_nick = info.substr(info.find("NICK") + 5, info.find("\n"));
+	std::vector<char> buffer(512, 0);
+	std::string res;
+	int bytesRead = 0;
+
+	bytesRead = recv(this->_socket, buffer.data(), buffer.size() - 1, 0);
+	if (bytesRead == 0)
+		throw ft_exception("Connection lost");
+	this->_buffer += buffer.data();
+	std::cerr << "#DEBUG: AFTER READ" << __LINE__ << std::endl;
 }
 
 int main(int ac, char** av)
 {
-	struct sockaddr_in server_addr, client_addr;
-	socklen_t client_len = sizeof(client_addr);
-	int sock = socket(AF_INET, SOCK_STREAM, 0);
-	char buffer[1024];
-
-	// config serv (ipv4/port)
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = INADDR_ANY;
-	server_addr.sin_port = htons(atoi(av[1]));
-
-	if (bind(sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1)
+	if (ac != 2)
 	{
-		std::cout << "bind error" << std::endl;
-		close(sock);
-		return (-1);
-	}
-	if (listen(sock, 5) == -1)
-	{
-		std::cout << "listen error" << std::endl;
-		close(sock);
-		return (-2);
+		std::cout << "Please use like this: " << av[0] << " <port>" << std::endl;
+		return (0);
 	}
 
-	std::cerr << "#DEBUG = " << inet_ntoa(server_addr.sin_addr) << std::endl;
-	std::cout << "Please wait . . ." << std::endl;
-
-	std::vector<struct pollfd> fds;
-	struct pollfd x;
-	x.fd = sock;
-	x.events = POLLIN;
-	fds.push_back(x);
-	std::cout << "Number of users : " << fds.size() - 1 << std::endl;
-
-	while (1)
+	try
 	{
-		poll(&fds[0], fds.size(), -1);
+		Server serv(atoi(av[1]));
+		while (1)
+		{
+			poll(&serv._fds[0], serv._fds.size(), -1);
 
-		if (fds[0].revents & POLLIN)
-		{
-			x.fd = accept(sock, (struct sockaddr*)&client_addr, &client_len);
-			std::cerr << "#DEBUG = " << inet_ntoa(client_addr.sin_addr) << std::endl;
-			x.events = POLLIN;
-			if (x.fd == -1)
+			if (serv._fds[0].revents & POLLIN)
 			{
-				std::cout << "accept error" << std::endl;
-				continue;
-			}
-			recv(x.fd, buffer, 1024 - 1, 0);
-			// User admin;
-			// admin.new_connection(x.fd, buffer);
-			send(x.fd, ":10.33.10.2 001 djanusz :Welcome\r\n", 34, 0);
-			std::cout << "Someone is connected . . ." << std::endl;
-			fds.push_back(x);
-			std::cout << "Number of users : " << fds.size() - 1 << std::endl;
-		}
-		for (int i = 1; i < fds.size(); i++)
-		{
-			if (fds[i].revents & POLLIN)
-			{
-				int n = recv(fds[i].fd, buffer, 1024 - 1, 0);
-				if (n <= 0)
+				User newuser(accept(serv._socket, NULL, NULL));
+				if (newuser._socket == -1)
 				{
-					if (n == 0)
-						std::cout << "Connection closed" << std::endl;
-					else
-						std::cout << "Connection losed" << std::endl;
-					close(fds[i].fd);
-					fds.erase(fds.begin() + i);
-					i--;
+					std::cout << "accept error" << std::endl;
 					continue;
 				}
-				buffer[n] = '\0';
-				std::cout << "[" << i << "]: " << buffer << std::endl;
+				send(newuser._socket, "001 djanusz :Welcome\n", 21, 0);
+				std::cout << "Someone is connected . . ." << std::endl;
+
+				serv._fds.push_back(newuser._socket);
+				serv._users.push_back(newuser);
+				std::cerr << "#DEBUG IN MAIN: " << serv._users.back()._socket.fd << std::endl;
+				std::cout << "Number of users : " << serv._fds.size() - 1 << std::endl;
+			}
+			for (size_t i = 1; i < serv._fds.size(); i++)
+			{
+				if (serv._fds[i].revents & POLLIN)
+				{
+					try
+					{
+						std::cerr << "#DEBUG IN MAIN: " << serv._users[i]._socket.fd << std::endl;
+						serv._users[i].readSocket();
+						if (serv._users[i]._buffer.find("\r\n"))
+							std::cout << "[" << i << "]: \"" << serv._users[i]._buffer << "\"" << std::endl;
+					}
+					catch(std::exception const& e)
+					{
+						std::cerr << e.what() << std::endl;
+						close(serv._fds[i].fd);
+						serv._fds.erase(serv._fds.begin() + i);
+						i--;
+						continue;
+					}
+				}
 			}
 		}
+	}
+	catch(std::exception const& e)
+	{
+		std::cerr << e.what() << std::endl;
 	}
 }

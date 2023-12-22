@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/20 17:00:53 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/22 15:27:20 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,25 +30,22 @@
 # include <iostream>
 # include <vector>
 
-
 # include "string"
 
 class User
 {
 	public:
-		User(void);
+		User(int socket);
 		User(User const& src);
 		User& operator=(User const& src);
 		~User(void);
 
-		void new_connection(int socket, std::string info);
-	private:
+		void readSocket(void);
+	// private:
 		int _socket;
-		std::string _nick;
-		std::string _user_name;
-		std::string _session;
-		std::string _host;
-		std::string _real_name;
+		std::string _nickname;
+		std::string _username;
+		std::string _buffer;
 };
 
 #endif
