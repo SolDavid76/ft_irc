@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/22 14:33:03 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/22 16:47:08 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/22 19:17:08 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,11 +61,13 @@ int main(int ac, char** av)
 					try
 					{
 						serv._users[i - 1].readSocket();
+						std::cerr << "#DEBUG: " << serv._users[i - 1]._buffer.find("\r\n") << std::endl;
 						while (serv._users[i - 1]._buffer.find("\n"))
 						{
-							std::cerr << "#DEBUG: " << serv._users[i - 1]._buffer.find("\n") << std::endl;
-							std::cout << "[" << i << "]{" << serv._users[i - 1]._buffer.substr(0, serv._users[i - 1]._buffer.find("\n")) << "}" << std::endl;
+							std::cout << "#PRINT" << "[" << i << "]{" << serv._users[i - 1]._buffer.substr(0, serv._users[i - 1]._buffer.find("\n")) << "}" << std::endl;
 							serv._users[i - 1]._buffer.erase(0, serv._users[i - 1 ]._buffer.find("\n"));
+							std::cerr << "#REST: " << serv._users[i - 1]._buffer << std::endl;
+							std::cerr << "#DEBUG: " << serv._users[i - 1]._buffer.find("\n") << std::endl;
 						}
 					}
 					catch(std::exception const& e)
