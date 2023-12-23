@@ -1,7 +1,8 @@
-SRCS	=	test.cpp\
+SRCS	=	main.cpp\
 			Server.cpp\
 			Channel.cpp\
 			User.cpp\
+			tools.cpp\
 
 OBJS	=	${SRCS:.cpp=.o}
 

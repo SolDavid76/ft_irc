@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/22 15:54:57 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/23 20:34:53 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,11 @@
 # include <poll.h>
 # include <stdlib.h>
 
+# include <signal.h>
 # include <iostream>
 # include <vector>
+# include <map>
+#include <sstream>
 
 # include "string"
 
@@ -41,15 +44,18 @@ class User
 		~User(void);
 
 		void readSocket(void);
+		void disconect(void);
 	// private:
+		int _id;
+		bool _irssi;
 		pollfd _socket;
 		std::string _nickname;
 		std::string _username;
 		std::string _buffer;
+
+		static int nextId;
 };
 
-#endif
+std::vector<std::string> ft_split(const std::string& input);
 
-// CAP LS
-// NICK djanusz
-// USER djanusz djanusz made-f0Cr10s2 :Dawid JANUSZ
+#endif
