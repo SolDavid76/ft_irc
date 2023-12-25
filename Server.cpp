@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/23 21:25:11 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/25 21:31:34 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ Server::Server(int port, std::string password)
 	pollfd fd = { this->_socket, POLLIN, 0 };
 	this->_fds.push_back(fd);
 	listen(this->_socket, 5);
+
+	this->initCommands();
 }
 
 Server::~Server(void)
@@ -55,11 +57,11 @@ void Server::initCommands(void)
 
 void Server::execCommand(std::vector<std::string> command, User& user)
 {
-	std::map<std::string, cmdFunction>::iterator it = this->_commands.find(command[0]);
 	std::cout << "[IDK]: ";
 	for (size_t i = 0; i < command.size(); i++)
 		std::cout << command[i] << " ";
 	std::cout << std::endl;
+	std::map<std::string, cmdFunction>::iterator it = this->_commands.find(command[0]);
 	if (it != this->_commands.end())
 		(this->*(it->second))(command, user);
 }

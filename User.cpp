@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/23 20:57:11 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/25 21:32:27 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,5 +49,6 @@ User::~User(void)
 
 void User::disconect(void)
 {
+	std::cout << this->_nickname << " has been disconnected !" << std::endl;
 	close(this->_socket.fd);
 }
