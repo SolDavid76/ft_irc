@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/25 21:31:34 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/26 11:23:54 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ Server::~Server(void)
 void Server::disconect(User user)
 {
 	user.disconect();
-	this->_fds.erase(this->_fds.begin() + user._id - 2);
+	this->_fds.erase(this->_fds.begin() + user._id);
 	this->_users.erase(this->_users.begin() + user._id - 1);
 }
 
@@ -55,27 +55,41 @@ void Server::initCommands(void)
 	this->_commands.insert(std::pair<std::string, cmdFunction>("USER", &Server::_USER));
 }
 
+bool isAuthenticationFunction(std::string const& input)
+{
+	if (input == "CAP" || input == "PASS" || input == "NICK" || input == "USER")
+		return (true);
+	return (false);
+}
+
 void Server::execCommand(std::vector<std::string> command, User& user)
 {
 	std::cout << "[IDK]: ";
 	for (size_t i = 0; i < command.size(); i++)
 		std::cout << command[i] << " ";
 	std::cout << std::endl;
-	std::map<std::string, cmdFunction>::iterator it = this->_commands.find(command[0]);
-	if (it != this->_commands.end())
-		(this->*(it->second))(command, user);
+	if (isAuthenticationFunction(command[0]) || user.isAuthentified())
+	{
+		std::map<std::string, cmdFunction>::iterator it = this->_commands.find(command[0]);
+		if (it != this->_commands.end())
+			(this->*(it->second))(command, user);
+		else
+			std::cout << "Invalid command" << std::endl;
+	}
+	else
+		std::cout << "You are not yet registered" << std::endl;
 }
 
 void Server::_CAP(std::vector<std::string>& command, User& user)
 {
-	if (command[1] == "LS")
+	if (command.size() > 1 && command[1] == "LS")
 		user._irssi = true;
 }
 
 void Server::_PASS(std::vector<std::string>& command, User& user)
 {
-	(void)command;
-	(void)user;
+	if (command.size() > 1)
+	
 	std::cout << "PASS was detected" << std::endl;
 }
 
@@ -89,7 +103,6 @@ void Server::_NICK(std::vector<std::string>& command, User& user)
 
 void Server::_USER(std::vector<std::string>& command, User& user)
 {
-	(void)command;
-	(void)user;
-	std::cout << "USER was detected" << std::endl;
+	if (command.size() > 1)
+		user._username = command[1];
 }

@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/23 20:34:53 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/26 09:50:59 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,12 @@ class User
 
 		void readSocket(void);
 		void disconect(void);
+		bool isAuthentified(void);
 	// private:
 		int _id;
 		bool _irssi;
 		pollfd _socket;
+		std::string _password;
 		std::string _nickname;
 		std::string _username;
 		std::string _buffer;

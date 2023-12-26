@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/25 21:32:27 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/26 10:26:12 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ User::User(int socket)
 	this->_socket.fd = socket;
 	this->_socket.events = POLLIN;
 	this->_socket.revents = 0;
+	this->_password = "";
 	this->_nickname = "";
 	this->_username = "";
 }
@@ -51,4 +52,11 @@ void User::disconect(void)
 {
 	std::cout << this->_nickname << " has been disconnected !" << std::endl;
 	close(this->_socket.fd);
+}
+
+bool User::isAuthentified(void)
+{
+	if (!this->_irssi || this->_password.empty() || this->_nickname.empty() || this->_username.empty())
+		return (false);
+	return (true);
 }
