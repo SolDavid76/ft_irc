@@ -6,7 +6,7 @@
 /*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/26 13:12:39 by ennollet         ###   ########.fr       */
+/*   Updated: 2023/12/26 14:39:39 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,10 +56,6 @@ void User::disconect(void)
 
 bool User::isAuthentified(void)
 {
-	// std::cout << "irssi : " << this->_irssi << std::endl;
-	// std::cout << "password : " << this->_password << std::endl;
-	// std::cout << "nickname : " << this->_nickname << std::endl;
-	// std::cout << "username : " << this->_username << std::endl;
 	if (!this->_irssi || this->_password.empty() || this->_nickname.empty() || this->_username.empty())
 		return (false);
 	return (true);
