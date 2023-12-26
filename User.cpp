@@ -3,23 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/20 16:54:16 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/26 13:12:39 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "User.hpp"
 
-User::User(void)
+int User::nextId = 1;
+
+User::User(int socket)
 {
-	this->_socket = 0;
-	this->_nick = "";
-	this->_user_name = "";
-	this->_session = "";
-	this->_host = "";
-	this->_real_name = "";
+	this->_id = nextId++;
+	this->_irssi = false;
+	this->_socket.fd = socket;
+	this->_socket.events = POLLIN;
+	this->_socket.revents = 0;
+	this->_password = "";
+	this->_nickname = "";
+	this->_username = "";
 }
 
 User::User(User const& src)
@@ -31,16 +35,32 @@ User& User::operator=(User const& src)
 {
 	if (this != &src)
 	{
+		this->_id = src._id;
+		this->_irssi = src._irssi;
 		this->_socket = src._socket;
-		this->_nick = src._nick;
-		this->_user_name = src._user_name;
-		this->_session = src._session;
-		this->_host = src._host;
-		this->_real_name = src._real_name;
+		this->_nickname = src._nickname;
+		this->_username = src._username;
 	}
 	return (*this);
 }
 
 User::~User(void)
 {
+}
+
+void User::disconect(void)
+{
+	std::cout << this->_nickname << " has been disconnected !" << std::endl;
+	close(this->_socket.fd);
+}
+
+bool User::isAuthentified(void)
+{
+	// std::cout << "irssi : " << this->_irssi << std::endl;
+	// std::cout << "password : " << this->_password << std::endl;
+	// std::cout << "nickname : " << this->_nickname << std::endl;
+	// std::cout << "username : " << this->_username << std::endl;
+	if (!this->_irssi || this->_password.empty() || this->_nickname.empty() || this->_username.empty())
+		return (false);
+	return (true);
 }
