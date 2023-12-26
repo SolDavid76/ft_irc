@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:00:02 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/23 21:25:06 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/26 14:13:49 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Server
 
 		void disconect(User user);
 		void initCommands(void);
+		int findUser(User const& user);
 		void execCommand(std::vector<std::string> command, User& user);
 	// private:
 		int _socket;
