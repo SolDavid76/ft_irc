@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/26 14:24:36 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/26 14:47:59 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ void Server::initCommands(void)
 	this->_commands.insert(std::pair<std::string, cmdFunction>("PASS", &Server::_PASS));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("NICK", &Server::_NICK));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("USER", &Server::_USER));
+	this->_commands.insert(std::pair<std::string, cmdFunction>("PING", &Server::_PING));
 }
 
 bool isAuthenticationFunction(std::string const& input)
@@ -98,21 +99,52 @@ void Server::_CAP(std::vector<std::string>& command, User& user)
 
 void Server::_PASS(std::vector<std::string>& command, User& user)
 {
-	if (command.size() > 1)
-	(void)user;
-	std::cout << "PASS was detected" << std::endl;
+	if (user._irssi)
+	{
+		if (command.size() > 1)
+		{
+			if (this->_password == command[1])
+			{
+			user._password = command[1];
+			std::cout << "user pswd apres" << user._password << std::endl;
+	
+			}
+		}
+		else
+			std::cout << "Your password is " << user._password << std::endl;
+	}
+	else
+		this->disconect(user);
 }
 
 void Server::_NICK(std::vector<std::string>& command, User& user)
 {
-	if (command.size() > 1)
-		user._nickname = command[1] + "#" + to_string(user._id);
+	if (!user._password.empty() && user._irssi)
+	{
+		if (command.size() > 1)
+			user._nickname = command[1] + "#" + to_string(user._id);
+		else
+			std::cout << "Your nickname is " << user._nickname << std::endl;
+	}
 	else
-		std::cout << "Your nickname is " << user._nickname << std::endl;
+		this->disconect(user);
 }
 
 void Server::_USER(std::vector<std::string>& command, User& user)
 {
-	if (command.size() > 1)
-		user._username = command[1];
+	if (!user._password.empty() && user._irssi && !user._nickname.empty())
+	{
+		if (command.size() > 1)
+			user._username = command[1];
+	}
+	else
+		this->disconect(user);
+}
+
+void Server::_PING(std::vector<std::string>& command, User& user)
+{
+	// std::cout << command[1] << std::endl;
+
+	std::string pongMsg = "PONG " + command[1] + "\r\n";
+	send(user._socket.fd, pongMsg.c_str(), pongMsg.length(), 0);
 }

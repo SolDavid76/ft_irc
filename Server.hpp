@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:00:02 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/26 14:13:49 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/26 14:48:30 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ class Server
 		void _PASS(std::vector<std::string>& command, User& user);
 		void _NICK(std::vector<std::string>& command, User& user);
 		void _USER(std::vector<std::string>& command, User& user);
+		void _PING(std::vector<std::string>& command, User& user);
 };
 
 class ft_exception: public std::exception
