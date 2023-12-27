@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/27 11:21:40 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/27 12:35:00 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,17 @@ int Server::findUser(User const& user)
 		if (this->_users[i]._id == user._id)
 			return (i);
 	}
-	return (0);
+	return (-1);
+}
+
+int Server::findChannel(std::string const& channel)
+{
+	for (size_t i = 0; i < this->_channels.size(); i++)
+	{
+		if (this->_channels[i]._name == channel)
+			return (i);
+	}
+	return (-1);
 }
 
 void Server::disconect(User user)
@@ -64,6 +74,7 @@ void Server::initCommands(void)
 	this->_commands.insert(std::pair<std::string, cmdFunction>("NICK", &Server::_NICK));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("USER", &Server::_USER));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("PING", &Server::_PING));
+	this->_commands.insert(std::pair<std::string, cmdFunction>("JOIN", &Server::_JOIN));
 }
 
 bool isAuthenticationFunction(std::string const& input)
@@ -140,4 +151,22 @@ void Server::_USER(std::vector<std::string>& command, User& user)
 void Server::_PING(std::vector<std::string>& command, User& user)
 {
 	user.ft_send("PONG " + command[1] + "\r\n");
+}
+
+void Server::_JOIN(std::vector<std::string>& command, User& user)
+{
+	if (command.size() == 1)
+		user.ft_send("Not enough parameters given");
+	else
+	{
+		std::vector<std::string> args = ft_split(*(command.begin() + 1), ',');
+		for (size_t i = 0; i < args.size(); i++)
+		{
+			int x;
+			if ((x = findChannel("#" + args[i])) != -1 || (x = findChannel("&" + args[i])) != -1)
+				this->_channels[x]._users.push_back(user);
+			else
+				this->_channels.push_back(Channel((args[i][0] == '#' || args[i][0] == '&') ? args[i] : "#" + args[i]));
+		}
+	}
 }

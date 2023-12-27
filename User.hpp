@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/27 10:51:49 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/27 11:53:35 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ class User
 		static int nextId;
 };
 
-std::vector<std::string> ft_split(const std::string& input);
+std::vector<std::string> ft_split(const std::string& input, char separator);
 
 template <typename T>
 std::string to_string(T const& value)
