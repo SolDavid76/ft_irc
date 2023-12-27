@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
+/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/26 14:39:39 by ennollet         ###   ########.fr       */
+/*   Updated: 2023/12/27 10:57:51 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ User::~User(void)
 
 void User::disconect(void)
 {
-	std::cout << this->_nickname << " has been disconnected !" << std::endl;
+	std::cout << (this->_nickname.empty() ? "#" + to_string(this->_id) : this->_nickname) << " has been disconnected !" << std::endl;
 	close(this->_socket.fd);
 }
 
@@ -59,4 +59,9 @@ bool User::isAuthentified(void)
 	if (!this->_irssi || this->_password.empty() || this->_nickname.empty() || this->_username.empty())
 		return (false);
 	return (true);
+}
+
+void User::ft_send(std::string msg)
+{
+	send(this->_socket.fd, msg.c_str(), msg.size(), 0);
 }

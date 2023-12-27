@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/26 09:50:59 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/27 10:51:49 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class User
 		void readSocket(void);
 		void disconect(void);
 		bool isAuthentified(void);
+		void ft_send(std::string msg);
 	// private:
 		int _id;
 		bool _irssi;
@@ -59,5 +60,13 @@ class User
 };
 
 std::vector<std::string> ft_split(const std::string& input);
+
+template <typename T>
+std::string to_string(T const& value)
+{
+	std::ostringstream oss;
+	oss << value;
+	return (oss.str());
+}
 
 #endif

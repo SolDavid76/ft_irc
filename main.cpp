@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/22 14:33:03 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/26 12:03:58 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/26 15:01:01 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,10 +57,6 @@ int main(int ac, char** av)
 				}
 				serv._fds.push_back(newuser._socket);
 				serv._users.push_back(newuser);
-
-				send(newuser._socket.fd, "001 djanusz :Welcome\n", 21, 0);
-				std::cout << "Someone is connected . . ." << std::endl;
-				std::cout << "Number of users : " << serv._users.size() << std::endl;
 			}
 			for (size_t i = 1; i < serv._fds.size(); i++)
 			{

@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:00:02 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/26 14:48:30 by djanusz          ###   ########.fr       */
+/*   Updated: 2023/12/27 10:51:36 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,13 +51,5 @@ class ft_exception: public std::exception
 	private:
 		std::string _errorMessage;
 };
-
-template <typename T>
-std::string to_string(T const& value)
-{
-	std::ostringstream oss;
-	oss << value;
-	return (oss.str());
-}
 
 #endif
