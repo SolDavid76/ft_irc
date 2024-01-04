@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:39:01 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/04 10:37:13 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/04 16:15:35 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class Channel
 		bool _invitationOnly;
 		std::vector<User> _invited;
 		std::vector<User> _users;
+
 };
 
 #endif
