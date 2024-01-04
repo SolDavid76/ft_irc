@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/27 10:57:51 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/04 16:06:17 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,16 @@ User& User::operator=(User const& src)
 		this->_id = src._id;
 		this->_irssi = src._irssi;
 		this->_socket = src._socket;
+		this->_password = src._password;
 		this->_nickname = src._nickname;
 		this->_username = src._username;
 	}
 	return (*this);
+}
+
+bool User::operator==(User const& other)
+{
+	return (this->_id == other._id);
 }
 
 User::~User(void)
@@ -64,4 +70,9 @@ bool User::isAuthentified(void)
 void User::ft_send(std::string msg)
 {
 	send(this->_socket.fd, msg.c_str(), msg.size(), 0);
+}
+
+bool User::isIn(std::vector<User> users)
+{
+	return (find(users.begin(), users.end(), *this) != users.end());
 }

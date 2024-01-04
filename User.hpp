@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/27 11:53:35 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/04 11:39:10 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,12 @@
 # include <poll.h>
 # include <stdlib.h>
 
+# include <algorithm>
 # include <signal.h>
 # include <iostream>
 # include <vector>
 # include <map>
-#include <sstream>
+# include <sstream>
 
 # include "string"
 
@@ -41,12 +42,14 @@ class User
 		User(int socket);
 		User(User const& src);
 		User& operator=(User const& src);
+		bool operator==(User const& other);
 		~User(void);
 
 		void readSocket(void);
 		void disconect(void);
 		bool isAuthentified(void);
 		void ft_send(std::string msg);
+		bool isIn(std::vector<User> users);
 	// private:
 		int _id;
 		bool _irssi;
