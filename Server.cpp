@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/04 17:00:58 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/04 17:16:45 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,9 +207,9 @@ void Server::_PRIVMSG(std::vector<std::string>& command, User& user)
 		{
 			int i = findChannel(command[1]);
 			if (i != -1)
-				for (std::vector<User>::iterator it; it != this->_channels[i]._users.end(); it++)
-					if ((*it)._nickname != user._nickname)
-						it->ft_send(":" + user._nickname + " PRIVMSG " + it->_nickname + " " + command[2] + "\r\n");
+				for (size_t x = 0; x < this->_channels[i]._users.size(); x++)
+					if (this->_channels[i]._users[x]._nickname != user._nickname)
+						this->_channels[i]._users[x].ft_send(":" + user._nickname + " PRIVMSG " + this->_channels[i]._name + " " + command[2] + "\r\n");
 		}
 	}
 	else
@@ -243,8 +243,6 @@ void Server::_JOIN(std::vector<std::string>& command, User& user)
 			}
 			else
 				this->_channels.push_back(Channel(user, (args[i][0] == '#' || args[i][0] == '&') ? args[i] : "#" + args[i]));
-			for (size_t i = 0; i < this->_channels[x]._users.size(); i++)
-				std::cout << this->_channels[x]._users[i]._nickname << std::endl;
 		}
 		std::cout << "[channels][";
 		for (size_t i = 0; i < this->_channels.size(); i++)
