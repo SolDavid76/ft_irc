@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/04 16:14:19 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/04 17:00:58 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,26 +50,6 @@ int Server::findUser(User const& user)
 	return (-1);
 }
 
-int Server::findChannel(std::string const& channel)
-{
-	for (size_t i = 0; i < this->_channels.size(); i++)
-	{
-		if (this->_channels[i]._name == channel)
-			return (i);
-	}
-	return (-1);
-}
-
-int Server::findUser(std::string user)
-{
-	for (size_t i = 0; i < this->_users.size(); i++)
-	{
-		if (this->_users[i]._nickname == user)
-			return (i);
-	}
-	return (-1);
-}
-
 int Server::findChannel(std::string channel)
 {
 	for (size_t i = 0; i < this->_channels.size(); i++)
@@ -85,16 +65,6 @@ int Server::findUser(std::string user)
 	for (size_t i = 0; i < this->_users.size(); i++)
 	{
 		if (this->_users[i]._nickname == user)
-			return (i);
-	}
-	return (-1);
-}
-
-int Server::findChannel(std::string channel)
-{
-	for (size_t i = 0; i < this->_channels.size(); i++)
-	{
-		if (this->_channels[i]._name == channel)
 			return (i);
 	}
 	return (-1);
@@ -238,7 +208,7 @@ void Server::_PRIVMSG(std::vector<std::string>& command, User& user)
 			int i = findChannel(command[1]);
 			if (i != -1)
 				for (std::vector<User>::iterator it; it != this->_channels[i]._users.end(); it++)
-					if (it->_nickname != user._nickname)
+					if ((*it)._nickname != user._nickname)
 						it->ft_send(":" + user._nickname + " PRIVMSG " + it->_nickname + " " + command[2] + "\r\n");
 		}
 	}
@@ -261,7 +231,7 @@ void Server::_JOIN(std::vector<std::string>& command, User& user)
 			int x;
 			if ((x = findChannel((args[i][0] == '#' || args[i][0] == '&') ? args[i] : "#" + args[i])) != -1 || (x = findChannel((args[i][0] == '#' || args[i][0] == '&') ? args[i] : "#" + args[i])) != -1)
 			{
-				if (!this->_channels[x]._invitationOnly || user.isIn(this->_channels[x]._invited))
+				if (!this->_channels[x]._invitationOnly) // || user.isIn(this->_channels[x]._invited)
 				{
 					// if (i > keys.size())
 					// 	keys.push_back("");
@@ -272,7 +242,9 @@ void Server::_JOIN(std::vector<std::string>& command, User& user)
 				}
 			}
 			else
-				this->_channels.push_back(Channel((args[i][0] == '#' || args[i][0] == '&') ? args[i] : "#" + args[i]));
+				this->_channels.push_back(Channel(user, (args[i][0] == '#' || args[i][0] == '&') ? args[i] : "#" + args[i]));
+			for (size_t i = 0; i < this->_channels[x]._users.size(); i++)
+				std::cout << this->_channels[x]._users[i]._nickname << std::endl;
 		}
 		std::cout << "[channels][";
 		for (size_t i = 0; i < this->_channels.size(); i++)

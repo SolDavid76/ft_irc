@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:00:02 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/04 16:15:03 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/04 16:22:30 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ class Server
 		void disconect(User user);
 		void initCommands(void);
 		int findUser(User const& user);
-		int findChannel(std::string const& channel);
 		int findUser(std::string user);
 		int findChannel(std::string channel);
 		void execCommand(std::vector<std::string> command, User& user);
@@ -43,6 +42,8 @@ class Server
 		void _NICK(std::vector<std::string>& command, User& user);
 		void _USER(std::vector<std::string>& command, User& user);
 		void _PING(std::vector<std::string>& command, User& user);
+		void _JOIN(std::vector<std::string>& command, User& user);
+		void _PRIVMSG(std::vector<std::string>& command, User& user);
 };
 
 class ft_exception: public std::exception
