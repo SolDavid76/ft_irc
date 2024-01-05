@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:00:02 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/04 16:22:30 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/05 15:36:30 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ class Server
 		void _USER(std::vector<std::string>& command, User& user);
 		void _PING(std::vector<std::string>& command, User& user);
 		void _JOIN(std::vector<std::string>& command, User& user);
+		void _INVITE(std::vector<std::string>& command, User& user);
 		void _PRIVMSG(std::vector<std::string>& command, User& user);
 };
 

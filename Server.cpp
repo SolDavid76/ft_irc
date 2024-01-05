@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/05 13:40:01 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/05 16:40:28 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -255,3 +255,36 @@ void Server::_JOIN(std::vector<std::string>& command, User& user)
 		std::cout << "]" << std::endl;
 	}
 }
+
+void Server::_INVITE(std::vector<std::string>& command, User& user)
+{
+	if (command.size() < 3)
+		user.ft_send("461 " + user._nickname + " " +  command[0] + " :Not enough parameters\r\n");
+	else
+	{
+		int x;
+		if (findUser(command[1]) == -1)
+			user.ft_send(":401 " + command[2] + " :No such nick/channel\r\n");
+		else if ((x = findChannel(command[2])) != -1)
+		{
+			// this->_channels[x]._users[]
+			int i;
+			if 	(!user.isIn(this->_channels[x]._users))
+				user.ft_send(":442 " + user._nickname + " :You're not on that channel\r\n");
+			else if ((i = findUser(command[1])))
+			{
+				if (this->_users[i].isIn(this->_channels[x]._users))
+					user.ft_send(":443 " + command[1] + " " + command[2] + ":is already on channel\r\n");
+			}
+			else if (i != -1 && this->_users[i].isIn(this->_channels[x]._admins))
+				user.ft_send(":482 " + command[2] + " :You're not channel operator\r\n");
+			else
+			{
+				this->_channels[x]._invited.push_back(&this->_users[i]);
+				user.ft_send(":341 " + command[2] + " " + command[1]);
+			}
+				
+		}
+	}	
+}
+
