@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/04 17:16:45 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/05 13:40:01 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,11 +205,15 @@ void Server::_PRIVMSG(std::vector<std::string>& command, User& user)
 		}
 		else
 		{
-			int i = findChannel(command[1]);
-			if (i != -1)
-				for (size_t x = 0; x < this->_channels[i]._users.size(); x++)
-					if (this->_channels[i]._users[x]._nickname != user._nickname)
-						this->_channels[i]._users[x].ft_send(":" + user._nickname + " PRIVMSG " + this->_channels[i]._name + " " + command[2] + "\r\n");
+			int x = findChannel(command[1]);
+			std::cout << "[Users in][" << this->_channels[x]._name;
+			for (size_t i = 0; i < this->_channels[x]._users.size(); i++)
+				std::cout << this->_channels[x]._users[i]->_nickname << " ";
+			std::cout << "]" << std::endl;
+			if (x != -1)
+				for (size_t i = 0; i < this->_channels[x]._users.size(); i++)
+					if (this->_channels[x]._users[i]->_nickname != user._nickname)
+						this->_channels[x]._users[i]->ft_send(":" + user._nickname + " PRIVMSG " + this->_channels[x]._name + " " + command[2] + "\r\n");
 		}
 	}
 	else
@@ -222,27 +226,28 @@ void Server::_JOIN(std::vector<std::string>& command, User& user)
 		user.ft_send("Not enough parameters given\r\n");
 	else
 	{
-		std::vector<std::string> args = ft_split(*(command.begin() + 1), ',');
+		std::vector<std::string> args = ft_split(command[1], ',');
 		std::vector<std::string> keys;
-		if (command.size() == 3)
-			keys = ft_split(*(command.begin() + 2), ',');
+		if (command.size() >= 3)
+			keys = ft_split(command[2], ',');
 		for (size_t i = 0; i < args.size(); i++)
 		{
 			int x;
-			if ((x = findChannel((args[i][0] == '#' || args[i][0] == '&') ? args[i] : "#" + args[i])) != -1 || (x = findChannel((args[i][0] == '#' || args[i][0] == '&') ? args[i] : "#" + args[i])) != -1)
+			std::string chan = (args[i][0] == '#' || args[i][0] == '&') ? args[i] : "#" + args[i];
+			if ((x = findChannel(chan)) != -1 || (x = findChannel(chan)) != -1)
 			{
 				if (!this->_channels[x]._invitationOnly) // || user.isIn(this->_channels[x]._invited)
 				{
 					// if (i > keys.size())
 					// 	keys.push_back("");
 					if (this->_channels[x]._password.empty() || (this->_channels[x]._password == keys[i]))
-						this->_channels[x]._users.push_back(user);
+						this->_channels[x]._users.push_back(&user);
 					else
 						user.ft_send("Wrong password\r\n");
 				}
 			}
 			else
-				this->_channels.push_back(Channel(user, (args[i][0] == '#' || args[i][0] == '&') ? args[i] : "#" + args[i]));
+				this->_channels.push_back(Channel(user, chan));
 		}
 		std::cout << "[channels][";
 		for (size_t i = 0; i < this->_channels.size(); i++)

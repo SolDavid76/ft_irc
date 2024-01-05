@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/23 20:32:33 by djanusz           #+#    #+#             */
-/*   Updated: 2023/12/27 11:52:49 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/05 11:08:25 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,10 @@ std::vector<std::string> ft_split(const std::string& input, char separator)
 	{
 		size_t pos = tmp.find("\r\n");
 		if (pos != std::string::npos)
-			return (res.push_back(tmp.substr(0, pos)), res);
+		{
+			res.push_back(tmp.substr(0, pos));
+			return (res);
+		}
 		res.push_back(tmp);
     }
 	return (res);
