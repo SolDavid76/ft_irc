@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/05 13:40:01 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/05 16:38:21 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,7 +165,7 @@ void Server::_USER(std::vector<std::string>& command, User& user)
 {
 	if (user._nickname.empty())
 			throw ft_exception("Connection closed");
-	if (command.size() > 1)
+	if (command.size() >= 4)
 	{
 		// if (command.size() > 1)
 		if (!user._username.empty())
@@ -173,7 +173,8 @@ void Server::_USER(std::vector<std::string>& command, User& user)
 		else
 		{
 		user._username = command[1];
-		user.ft_send("001 " + user._nickname + " :Welcome\n");
+		user._hostname = command[4];
+		user.ft_send(":" + user._hostname + " 001 " + user._nickname + " :Welcome\n");
 		std::cout << "Someone is connected . . ." << std::endl;
 		}
 	}
@@ -206,7 +207,7 @@ void Server::_PRIVMSG(std::vector<std::string>& command, User& user)
 		else
 		{
 			int x = findChannel(command[1]);
-			std::cout << "[Users in][" << this->_channels[x]._name;
+			std::cout << "[Users in " << this->_channels[x]._name << "][";
 			for (size_t i = 0; i < this->_channels[x]._users.size(); i++)
 				std::cout << this->_channels[x]._users[i]->_nickname << " ";
 			std::cout << "]" << std::endl;
@@ -217,13 +218,13 @@ void Server::_PRIVMSG(std::vector<std::string>& command, User& user)
 		}
 	}
 	else
-		user.ft_send("412 " + user._nickname + " : No text to send\r\n");
+		user.ft_send("412 " + user._nickname + " :No text to send\r\n");
 }
 
 void Server::_JOIN(std::vector<std::string>& command, User& user)
 {
 	if (command.size() == 1)
-		user.ft_send("Not enough parameters given\r\n");
+		user.ft_send(":" + user._hostname + " 461 " + user._nickname + "JOIN :Not enough parameters given\r\n");
 	else
 	{
 		std::vector<std::string> args = ft_split(command[1], ',');
@@ -241,10 +242,17 @@ void Server::_JOIN(std::vector<std::string>& command, User& user)
 					// if (i > keys.size())
 					// 	keys.push_back("");
 					if (this->_channels[x]._password.empty() || (this->_channels[x]._password == keys[i]))
-						this->_channels[x]._users.push_back(&user);
+					{
+						if (this->_channels[x]._users.size() < this->_channels[x]._maxUsers)
+							this->_channels[x]._users.push_back(&user);
+						else
+							user.ft_send(":" + user._hostname + " 471 " + user._nickname + chan + " :The channel is full\r\n");
+					}
 					else
-						user.ft_send("Wrong password\r\n");
+						user.ft_send(":" + user._hostname + " 475 " + user._nickname + " " + chan + " :Incorrect password to join channel\r\n");
 				}
+				else
+					user.ft_send(":" + user._hostname + " 473 " + chan + ":The channel is in invite-only mode\r\n");
 			}
 			else
 				this->_channels.push_back(Channel(user, chan));
@@ -254,4 +262,12 @@ void Server::_JOIN(std::vector<std::string>& command, User& user)
 			std::cout << this->_channels[i]._name << " ";
 		std::cout << "]" << std::endl;
 	}
+}
+// :votrepseudo!votreident@votrehost JOIN #nomducanal
+// :serveur 332 votrepseudo #nomducanal :Le sujet du canal est : "Sujet du canal"
+// :serveur 353 votrepseudo = #nomducanal :utilisateur1 utilisateur2 utilisateur3
+// :serveur 366 votrepseudo #nomducanal :Fin de la liste des noms
+void Channel::_JOIN(User& user)
+{
+	user.ft_send(":" + user._nickname + "!" + user._username + "@" + user._hostname + " JOIN " + this->_name);
 }

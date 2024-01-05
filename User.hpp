@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/05 11:36:09 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/05 15:38:57 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ class User
 		int _id;
 		bool _irssi;
 		pollfd _socket;
+		std::string _hostname;
 		std::string _password;
 		std::string _nickname;
 		std::string _username;
