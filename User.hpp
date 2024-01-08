@@ -6,7 +6,7 @@
 /*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/05 16:03:21 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/08 15:59:51 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ class User
 		int _id;
 		bool _irssi;
 		pollfd _socket;
+		std::string _hostname;
 		std::string _password;
 		std::string _nickname;
 		std::string _username;
