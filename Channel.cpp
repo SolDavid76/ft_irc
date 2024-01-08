@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:44:35 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/05 11:46:53 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/08 12:46:48 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,3 +48,14 @@ Channel& Channel::operator=(Channel const& src)
 Channel::~Channel(void)
 {
 }
+
+int Channel::findUser(std::string name)
+{
+	for (size_t i = 0; i < this->_users.size(); i++)
+	{
+		if (this->_users[i]->_nickname == name)
+			return (i);
+	}
+	return (-1);	
+}
+

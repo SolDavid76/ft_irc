@@ -6,7 +6,7 @@
 /*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/05 16:04:38 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/08 10:03:53 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,5 +79,5 @@ bool User::isIn(std::vector<User> users)
 
 bool User::isIn(std::vector<User*> users)
 {
-	return (find(users.begin(), users.end(), *this) != users.end());
+	return (find(users.begin(), users.end(), this) != users.end());
 }
