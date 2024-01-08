@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/05 15:56:49 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/08 15:49:41 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,4 +75,9 @@ void User::ft_send(std::string msg)
 bool User::isIn(std::vector<User> users)
 {
 	return (find(users.begin(), users.end(), *this) != users.end());
+}
+
+bool User::isIn(std::vector<User*> users)
+{
+	return (find(users.begin(), users.end(), this) != users.end());
 }

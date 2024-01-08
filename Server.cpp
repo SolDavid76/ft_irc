@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/05 16:38:21 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/08 16:11:13 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,7 +173,7 @@ void Server::_USER(std::vector<std::string>& command, User& user)
 		else
 		{
 		user._username = command[1];
-		user._hostname = command[4];
+		user._hostname = command[3];
 		user.ft_send(":" + user._hostname + " 001 " + user._nickname + " :Welcome\n");
 		std::cout << "Someone is connected . . ." << std::endl;
 		}
@@ -239,20 +239,18 @@ void Server::_JOIN(std::vector<std::string>& command, User& user)
 			{
 				if (!this->_channels[x]._invitationOnly) // || user.isIn(this->_channels[x]._invited)
 				{
-					// if (i > keys.size())
-					// 	keys.push_back("");
-					if (this->_channels[x]._password.empty() || (this->_channels[x]._password == keys[i]))
+					if (this->_channels[x]._password.empty() || this->_channels[x]._password == (i < keys.size() ? keys[i] : ""))
 					{
 						if (this->_channels[x]._users.size() < this->_channels[x]._maxUsers)
-							this->_channels[x]._users.push_back(&user);
+							this->_channels[x]._JOIN(user);
 						else
-							user.ft_send(":" + user._hostname + " 471 " + user._nickname + chan + " :The channel is full\r\n");
+							user.ft_send(":" + user._hostname + " 471 " + user._nickname + " " + chan + " :Channel is full\r\n");
 					}
 					else
-						user.ft_send(":" + user._hostname + " 475 " + user._nickname + " " + chan + " :Incorrect password to join channel\r\n");
+						user.ft_send(":" + user._hostname + " 475 " + user._nickname + " " + chan + " :Bad channel key\r\n");
 				}
 				else
-					user.ft_send(":" + user._hostname + " 473 " + chan + ":The channel is in invite-only mode\r\n");
+					user.ft_send(":" + user._hostname + " 473 " + user._nickname + " " + chan + " :You must be invited\r\n");
 			}
 			else
 				this->_channels.push_back(Channel(user, chan));
@@ -263,11 +261,28 @@ void Server::_JOIN(std::vector<std::string>& command, User& user)
 		std::cout << "]" << std::endl;
 	}
 }
-// :votrepseudo!votreident@votrehost JOIN #nomducanal
-// :serveur 332 votrepseudo #nomducanal :Le sujet du canal est : "Sujet du canal"
-// :serveur 353 votrepseudo = #nomducanal :utilisateur1 utilisateur2 utilisateur3
-// :serveur 366 votrepseudo #nomducanal :Fin de la liste des noms
+
 void Channel::_JOIN(User& user)
 {
-	user.ft_send(":" + user._nickname + "!" + user._username + "@" + user._hostname + " JOIN " + this->_name);
+	this->_users.push_back(&user);
+	user.ft_send(":" + user._nickname + "!" + user._username + "@" + user._hostname + " JOIN " + this->_name + "\r\n");
+	user.ft_send(":" + user._hostname + " 332 " + user._nickname + " " + this->_name + " :" + this->_topic + "\r\n");
+	user.ft_send(":" + user._hostname + " 353 " + user._nickname + " = " + this->_name + " :" + this->userList() + "\r\n");
+	user.ft_send(":" + user._hostname + " 366 " + user._nickname + " " + this->_name + " :End of name list\r\n");
+}
+
+std::string Channel::userList(void)
+{
+	std::string res = "@" + this->_owner->_nickname;
+	for (size_t i = 0; i < this->_admins.size(); i++)
+	{
+		if (!this->_owner->isIn(this->_admins))
+			res += " @" + this->_admins[i]->_nickname;
+	}
+	for (size_t i = 0; i < this->_users.size(); i++)
+	{
+		if (!this->_users[i]->isIn(this->_admins))
+			res += " " + this->_users[i]->_nickname;
+	}
+	return (res);
 }

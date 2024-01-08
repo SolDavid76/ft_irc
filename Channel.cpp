@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:44:35 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/05 11:46:53 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/08 15:44:26 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,22 @@
 Channel::Channel(void)
 {
 	this->_name = "";
-	this->_password = "";
 	this->_invitationOnly = false;
+	this->_password = "";
+	this->_maxUsers = std::numeric_limits<size_t>::max();
+	this->_topic = "No topic is set";
 }
 
-Channel::Channel(User& creator, std::string name)
+Channel::Channel(User& owner, std::string name)
 {
 	this->_name = name;
-	this->_password = "";
 	this->_invitationOnly = false;
-	this->_users.push_back(&creator);
+	this->_password = "";
+	this->_maxUsers = std::numeric_limits<size_t>::max();
+	this->_topic = "No topic is set";
+	this->_owner = &owner;
+	this->_admins.push_back(&owner);
+	this->_JOIN(owner);
 }
 
 Channel::Channel(Channel const& src)
@@ -37,10 +43,14 @@ Channel& Channel::operator=(Channel const& src)
 	if (this != &src)
 	{
 		this->_name = src._name;
-		this->_password = src._password;
 		this->_invitationOnly = src._invitationOnly;
+		this->_password = src._password;
+		this->_maxUsers = src._maxUsers;
+		this->_topic = src._topic;
+		this->_owner = src._owner;
 		this->_invited = src._invited;
 		this->_users = src._users;
+		this->_admins = src._admins;
 	}
 	return (*this);
 }
