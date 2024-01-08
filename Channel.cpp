@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:44:35 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/08 15:44:26 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/08 16:23:39 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,3 +58,14 @@ Channel& Channel::operator=(Channel const& src)
 Channel::~Channel(void)
 {
 }
+
+int Channel::findUser(std::string name)
+{
+	for (size_t i = 0; i < this->_users.size(); i++)
+	{
+		if (this->_users[i]->_nickname == name)
+			return (i);
+	}
+	return (-1);	
+}
+

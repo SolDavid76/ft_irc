@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/08 16:11:13 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/08 17:02:07 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,8 @@ void Server::initCommands(void)
 	this->_commands.insert(std::pair<std::string, cmdFunction>("USER", &Server::_USER));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("PING", &Server::_PING));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("JOIN", &Server::_JOIN));
+	this->_commands.insert(std::pair<std::string, cmdFunction>("KICK", &Server::_KICK));
+	this->_commands.insert(std::pair<std::string, cmdFunction>("INVITE", &Server::_INVITE));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("PRIVMSG", &Server::_PRIVMSG));
 }
 
@@ -269,20 +271,95 @@ void Channel::_JOIN(User& user)
 	user.ft_send(":" + user._hostname + " 332 " + user._nickname + " " + this->_name + " :" + this->_topic + "\r\n");
 	user.ft_send(":" + user._hostname + " 353 " + user._nickname + " = " + this->_name + " :" + this->userList() + "\r\n");
 	user.ft_send(":" + user._hostname + " 366 " + user._nickname + " " + this->_name + " :End of name list\r\n");
+	std::cout << "OWNER=" << this->_owner->_nickname << std::endl;
+	std::cout << "ADMINS=";
+	for (size_t i = 0; i < this->_admins.size(); i++)
+		std::cout << this->_admins[i]->_nickname;
+	std::cout << std::endl << "USERS=";
+	for (size_t i = 0; i < this->_users.size(); i++)
+		std::cout << this->_users[i]->_nickname;
+	std::cout << std::endl;
 }
 
 std::string Channel::userList(void)
 {
-	std::string res = "@" + this->_owner->_nickname;
-	for (size_t i = 0; i < this->_admins.size(); i++)
-	{
-		if (!this->_owner->isIn(this->_admins))
-			res += " @" + this->_admins[i]->_nickname;
-	}
+	// std::string res = "@" + this->_owner->_nickname;
+	// for (size_t i = 0; i < this->_admins.size(); i++)
+	// {
+	// 	if (this->_admins[i] != this->_owner)
+	// 		res += " @" + this->_admins[i]->_nickname;
+	// }
+	// for (size_t i = 0; i < this->_users.size(); i++)
+	// {
+	// 	if (this->_users[i]->isIn(this->_admins))
+	// 		res += " " + this->_users[i]->_nickname;
+	// }
+	std::string res;
 	for (size_t i = 0; i < this->_users.size(); i++)
 	{
-		if (!this->_users[i]->isIn(this->_admins))
-			res += " " + this->_users[i]->_nickname;
+		if (this->_users[i]->isIn(this->_admins))
+			res += "@" + this->_users[i]->_nickname + " ";
+		else
+			res += this->_users[i]->_nickname + " ";
 	}
 	return (res);
+}
+
+void Server::_INVITE(std::vector<std::string>& command, User& user)
+{
+	if (command.size() < 3)
+		user.ft_send("461 " + user._nickname + " " +  command[0] + " :Not enough parameters\r\n");
+	else
+	{
+		int x;
+		if (findUser(command[1]) == -1)
+			user.ft_send(":401 " + command[2] + " :No such nick/channel\r\n");
+		else if ((x = findChannel(command[2])) != -1)
+		{
+			int i;
+			if 	(!user.isIn(this->_channels[x]._users))
+				user.ft_send(":442 " + user._nickname + " :You're not on that channel\r\n");
+			else if ((i = findUser(command[1])))
+			{
+				if (this->_users[i].isIn(this->_channels[x]._users))
+					user.ft_send(":443 " + command[1] + " " + command[2] + ":is already on channel\r\n");
+			}
+			else if (i != -1 && this->_users[i].isIn(this->_channels[x]._admins))
+				user.ft_send(":482 " + command[2] + " :You're not channel operator\r\n");
+			else
+			{
+				if (this->_users[i].isIn(this->_channels[x]._invited) == 0)
+					this->_channels[x]._invited.push_back(&this->_users[i]);
+				this->_users[i].ft_send(":" + user._nickname + " INVITE " + this->_users[i]._nickname + " " + this->_channels[x]._name + "\r\n");
+				for (size_t j = 0; j <  this->_channels[x]._invited.size(); j++)
+					std::cout << this->_channels[x]._invited[j]->_nickname << std::endl;
+				// user.ft_send(":341 " + command[2] + " " + command[1] + "\r\n");
+				// user.ft_send(":301 " + command[1] + " is absent\r\n");
+			}
+		}
+	}
+}
+
+void Server::_KICK(std::vector<std::string>& command, User& user)
+{
+	if (command.size() < 3)
+		user.ft_send("461 " + user._nickname + " " +  command[0] + " :Not enough parameters\r\n");
+	else
+	{
+		int x;
+		int i;
+		if ((x = findChannel(command[1]) == -1))
+			user.ft_send(":403 " + command[1] + ":No such channel\r\n");
+		else if (user.isIn(this->_channels[x]._users) == 0)
+			user.ft_send(":442 " + command[1] + " :You're not on that channel\r\n");
+		else if (user.isIn(this->_channels[x]._admins) == 0)
+			user.ft_send(":482 " + command[1] + " :You're not channel operator\r\n");
+		else if ((i = this->_channels[x].findUser(command[2])) != -1)
+		{
+			this->_channels[x]._users[i]->ft_send(":" + user._nickname + " " + command[0] + " " + command[1] + " " + command[2] + "\r\n");
+			this->_channels[x]._users.erase(this->_channels[x]._users.begin() + this->_channels[x].findUser(command[2]));
+		}
+		else
+			std::cout << "YaR" << std::endl;
+	}
 }
