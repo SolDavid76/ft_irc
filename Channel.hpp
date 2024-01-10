@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:39:01 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/10 12:05:01 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/10 16:50:20 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,12 @@ class Channel
 {
 	public:
 		Channel(void);
-		Channel(User& creator, std::string name);
+		Channel(User* owner, std::string name);
 		Channel(Channel const& src);
 		Channel& operator=(Channel const& src);
 		~Channel(void);
 
-		void _JOIN(User& user);
+		void _JOIN(User* user);
 		std::string userList(void);
 		int findUser(std::string name);
 	// private:
