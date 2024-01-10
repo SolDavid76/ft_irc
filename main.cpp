@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/22 14:33:03 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/04 16:06:07 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/10 16:34:51 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ int main(int ac, char** av)
 				}
 				serv._fds.push_back(newuser._socket);
 				serv._users.push_back(newuser);
+				std::cout << "ADRESS OF " << serv._users.size() << " = " << &(serv._users.back()) << std::endl;
 			}
 			for (size_t i = 1; i < serv._fds.size(); i++)
 			{

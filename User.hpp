@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/08 16:23:23 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/10 15:35:56 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ class User
 		void disconect(void);
 		bool isAuthentified(void);
 		void ft_send(std::string msg);
+		void tf_send(std::string msg);
 		bool isIn(std::vector<User> users);
 		bool isIn(std::vector<User*> users);
 	// private:

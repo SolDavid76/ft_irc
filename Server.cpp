@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/08 17:02:07 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/10 16:36:10 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,15 +169,14 @@ void Server::_USER(std::vector<std::string>& command, User& user)
 			throw ft_exception("Connection closed");
 	if (command.size() >= 4)
 	{
-		// if (command.size() > 1)
 		if (!user._username.empty())
 			user.ft_send("462 " + user._nickname + " :You may not reregister\r\n");
 		else
 		{
-		user._username = command[1];
-		user._hostname = command[3];
-		user.ft_send(":" + user._hostname + " 001 " + user._nickname + " :Welcome\n");
-		std::cout << "Someone is connected . . ." << std::endl;
+			user._username = command[1];
+			user._hostname = command[3];
+			user.ft_send(":" + user._hostname + " 001 " + user._nickname + " :Welcome\n");
+			std::cout << "Someone is connected . . ." << std::endl;
 		}
 	}
 	else
@@ -237,70 +236,71 @@ void Server::_JOIN(std::vector<std::string>& command, User& user)
 		{
 			int x;
 			std::string chan = (args[i][0] == '#' || args[i][0] == '&') ? args[i] : "#" + args[i];
-			if ((x = findChannel(chan)) != -1 || (x = findChannel(chan)) != -1)
-			{
-				if (!this->_channels[x]._invitationOnly) // || user.isIn(this->_channels[x]._invited)
-				{
-					if (this->_channels[x]._password.empty() || this->_channels[x]._password == (i < keys.size() ? keys[i] : ""))
-					{
-						if (this->_channels[x]._users.size() < this->_channels[x]._maxUsers)
-							this->_channels[x]._JOIN(user);
-						else
-							user.ft_send(":" + user._hostname + " 471 " + user._nickname + " " + chan + " :Channel is full\r\n");
-					}
-					else
-						user.ft_send(":" + user._hostname + " 475 " + user._nickname + " " + chan + " :Bad channel key\r\n");
-				}
-				else
-					user.ft_send(":" + user._hostname + " 473 " + user._nickname + " " + chan + " :You must be invited\r\n");
-			}
-			else
+			// if ((x = this->findChannel(chan)) != -1)
+			// {
+			// 	if (!this->_channels[x]._invitationOnly || user.isIn(this->_channels[x]._invited))
+			// 	{
+			// 		if (this->_channels[x]._password.empty() || this->_channels[x]._password == (i < keys.size() ? keys[i] : ""))
+			// 		{
+			// 			if (this->_channels[x]._users.size() < this->_channels[x]._maxUsers)
+			// 			{
+			// 				if (!user.isIn(this->_channels[x]._users))
+			// 					this->_channels[x]._JOIN(user);
+			// 			}
+			// 			else
+			// 				user.ft_send(":" + user._hostname + " 471 " + user._nickname + " " + chan + " :Channel is full\r\n");
+			// 		}
+			// 		else
+			// 			user.ft_send(":" + user._hostname + " 475 " + user._nickname + " " + chan + " :Bad channel key\r\n");
+			// 	}
+			// 	else
+			// 		user.ft_send(":" + user._hostname + " 473 " + user._nickname + " " + chan + " :You must be invited\r\n");
+			// }
+			// else
+			// 	this->_channels.push_back(Channel(user, chan));
+
+			if ((x = this->findChannel(chan)) == -1)
 				this->_channels.push_back(Channel(user, chan));
+			else if (this->_channels[x]._invitationOnly && !user.isIn(this->_channels[x]._invited))
+				user.ft_send(":" + user._hostname + " 473 " + user._nickname + " " + chan + " :You must be invited\r\n");
+			else if (!this->_channels[x]._password.empty() && this->_channels[x]._password != (i < keys.size() ? keys[i] : ""))
+				user.ft_send(":" + user._hostname + " 475 " + user._nickname + " " + chan + " :Bad channel key\r\n");
+			else if (this->_channels[x]._users.size() > this->_channels[x]._maxUsers)
+				user.ft_send(":" + user._hostname + " 471 " + user._nickname + " " + chan + " :Channel is full\r\n");
+			else if (!user.isIn(this->_channels[x]._users))
+				this->_channels[x]._JOIN(user);
 		}
-		std::cout << "[channels][";
-		for (size_t i = 0; i < this->_channels.size(); i++)
-			std::cout << this->_channels[i]._name << " ";
-		std::cout << "]" << std::endl;
 	}
 }
 
 void Channel::_JOIN(User& user)
 {
 	this->_users.push_back(&user);
-	user.ft_send(":" + user._nickname + "!" + user._username + "@" + user._hostname + " JOIN " + this->_name + "\r\n");
+	for (size_t i = 0; i < this->_users.size(); i++)
+	{
+		std::cout << "============================================" << std::endl;
+		std::cout << "ADDRESS[" << i << "]: " << this->_users[i] << std::endl;
+		std::cout << "NICKNAME[" << i << "]" << this->_users[i]->_nickname << std::endl;
+		std::cout << "USERNAME[" << i << "]" << this->_users[i]->_username << std::endl;
+		std::cout << "HOSTNAME[" << i << "]" << this->_users[i]->_hostname << std::endl;
+		std::cout << "NAME = " << this->_name << std::endl;
+		std::cout << "============================================" << std::endl;
+		this->_users[i]->tf_send(":" + user._nickname + "!" + user._username + "@" + user._hostname + " JOIN " + this->_name + "\r\n");
+	}
 	user.ft_send(":" + user._hostname + " 332 " + user._nickname + " " + this->_name + " :" + this->_topic + "\r\n");
 	user.ft_send(":" + user._hostname + " 353 " + user._nickname + " = " + this->_name + " :" + this->userList() + "\r\n");
 	user.ft_send(":" + user._hostname + " 366 " + user._nickname + " " + this->_name + " :End of name list\r\n");
-	std::cout << "OWNER=" << this->_owner->_nickname << std::endl;
-	std::cout << "ADMINS=";
-	for (size_t i = 0; i < this->_admins.size(); i++)
-		std::cout << this->_admins[i]->_nickname;
-	std::cout << std::endl << "USERS=";
-	for (size_t i = 0; i < this->_users.size(); i++)
-		std::cout << this->_users[i]->_nickname;
-	std::cout << std::endl;
 }
 
 std::string Channel::userList(void)
 {
-	// std::string res = "@" + this->_owner->_nickname;
-	// for (size_t i = 0; i < this->_admins.size(); i++)
-	// {
-	// 	if (this->_admins[i] != this->_owner)
-	// 		res += " @" + this->_admins[i]->_nickname;
-	// }
-	// for (size_t i = 0; i < this->_users.size(); i++)
-	// {
-	// 	if (this->_users[i]->isIn(this->_admins))
-	// 		res += " " + this->_users[i]->_nickname;
-	// }
 	std::string res;
 	for (size_t i = 0; i < this->_users.size(); i++)
 	{
 		if (this->_users[i]->isIn(this->_admins))
-			res += "@" + this->_users[i]->_nickname + " ";
+			res = res + "@" + this->_users[i]->_nickname + " ";
 		else
-			res += this->_users[i]->_nickname + " ";
+			res = res + this->_users[i]->_nickname + " ";
 	}
 	return (res);
 }
