@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/08 17:02:07 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/12 11:01:40 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,10 @@ int Server::findUser(User const& user)
 
 int Server::findChannel(std::string channel)
 {
+	// std::cout << "name " << channel << std::endl;
 	for (size_t i = 0; i < this->_channels.size(); i++)
 	{
+	// std::cout << "channel_name " << this->_channels[i]._name << std::endl;
 		if (this->_channels[i]._name == channel)
 			return (i);
 	}
@@ -86,6 +88,7 @@ void Server::initCommands(void)
 	this->_commands.insert(std::pair<std::string, cmdFunction>("PING", &Server::_PING));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("JOIN", &Server::_JOIN));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("KICK", &Server::_KICK));
+	this->_commands.insert(std::pair<std::string, cmdFunction>("MODE", &Server::_MODE));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("INVITE", &Server::_INVITE));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("PRIVMSG", &Server::_PRIVMSG));
 }
@@ -319,12 +322,12 @@ void Server::_INVITE(std::vector<std::string>& command, User& user)
 			int i;
 			if 	(!user.isIn(this->_channels[x]._users))
 				user.ft_send(":442 " + user._nickname + " :You're not on that channel\r\n");
-			else if ((i = findUser(command[1])))
+			else if ((i = findUser(command[1])) != -1)
 			{
 				if (this->_users[i].isIn(this->_channels[x]._users))
-					user.ft_send(":443 " + command[1] + " " + command[2] + ":is already on channel\r\n");
+					user.ft_send(":443 " + command[1] + " " + command[2] + " :is already on channel\r\n");
 			}
-			else if (i != -1 && this->_users[i].isIn(this->_channels[x]._admins))
+			else if (i != -1 && !this->_users[i].isIn(this->_channels[x]._admins))
 				user.ft_send(":482 " + command[2] + " :You're not channel operator\r\n");
 			else
 			{
@@ -348,8 +351,8 @@ void Server::_KICK(std::vector<std::string>& command, User& user)
 	{
 		int x;
 		int i;
-		if ((x = findChannel(command[1]) == -1))
-			user.ft_send(":403 " + command[1] + ":No such channel\r\n");
+		if ((x = findChannel(command[1])) == -1)
+			user.ft_send(":403 " + command[1] + " :No such channel\r\n");
 		else if (user.isIn(this->_channels[x]._users) == 0)
 			user.ft_send(":442 " + command[1] + " :You're not on that channel\r\n");
 		else if (user.isIn(this->_channels[x]._admins) == 0)
@@ -363,3 +366,112 @@ void Server::_KICK(std::vector<std::string>& command, User& user)
 			std::cout << "YaR" << std::endl;
 	}
 }
+
+void Server::_MODE(std::vector<std::string>& command, User& user)
+{
+	if (command.size() < 3)
+		user.ft_send("461 " + user._nickname + " " +  command[0] + " :Not enough parameters\r\n");
+	else
+	{
+		int x;
+		if ((x = findChannel(command[1])) == -1)
+			user.ft_send(":403 " + command[1] + " :No such channel\r\n");
+		else if (user.isIn(this->_channels[x]._users) == 0)
+			user.ft_send(":442 " + command[1] + " :You're not on that channel\r\n");
+		else if (user.isIn(this->_channels[x]._admins) == 0)
+			user.ft_send(":482 " + command[1] + " :You're not channel operator\r\n");
+		else 
+		{
+			if (command[2][0] != '+' && command[2][0] != '-')
+				std::cout << "errrrrrrrrrrr" << std::endl;
+			else
+			{
+				bool option = command[2][0] == '+';
+				size_t j = 1;
+				for (size_t i = 1; i < command[2].size(); i++)
+				{
+					if (command[2][i] == 'i')
+						this->_channels[x]._invitationOnly = option;
+					else if (command[2][i] == 't')
+						this->_channels[x]._topicCanBeChange = option;
+					else if (command[2][i] == 'o')
+					{
+						if (2 + j <= command.size() - 1)
+						{
+						int y;
+						if ((y = findUser(command[2 + j++])) != -1 && this->_users[y].isIn(this->_channels[x]._users))
+							{
+							std::cout << "ici" << std::endl;
+
+								if (option)
+									this->_channels[x]._admins.push_back(&this->_users[y]);
+								else
+									std::cout << "je dois remove" << std::endl;
+							}
+						else if (y == -1)
+							user.ft_send(":" + user._hostname + " 482 " + user._nickname + " " + command[1] + " :User not on that channel\r\n");	
+							// user.ft_send(":442 " + command[1] + " :User not on that channel\r\n");	
+						}
+						else
+							user.ft_send(":461 " + user._nickname + " " +  command[0] + " :Not enough parameters\r\n");
+										
+					}
+					else if (command[2][i] == 'k')
+					{
+						if (2 + j <= command.size() - 1)
+						{
+							std::cout << "j + 2 " << j+2 << std::endl;
+							std::cout << "command_size " << command.size() << std::endl;
+							if (option)
+							{
+								if (this->_channels[x]._password == "")
+									this->_channels[x]._password = command[2 + j++];
+								else
+									user.ft_send(":467 " + command[1] + " :Chanel key already set");
+							}
+							else
+								{
+									if (this->_channels[x]._password == command[2 + j++])
+										this->_channels[x]._password = "";
+									else
+										std::cout << "MAUVAIS PASSWORD" << std::endl;
+								}
+						}
+						else
+							user.ft_send(":461 " + user._nickname + " " +  command[0] + " :Not enough parameters\r\n");
+					}
+					else if (command[2][i] == 'l')
+					{
+						if (2 + j <= command.size() - 1)
+						{
+							if (option)
+							{
+								int limit = std::atoi(to_string(command[2 + j]).c_str());
+								for (size_t i = 0; i < command[2 + j].size(); i++)
+									if (!isdigit(command[2 + j][i]))
+										limit = -1;		
+								j++;		
+								if (limit > 0)
+								{
+									this->_channels[x]._maxUsers = limit;
+									user.ft_send(":" + user._hostname + " 324 " + user._nickname + " " + this->_channels[x]._name + " " + command[2] + "\r\n");
+									std::cout << ":" + user._hostname + " 324 " + user._nickname + " " + this->_channels[x]._name + " " + command[2] + "\r\n" << std::endl;
+
+								}
+								else
+									std::cout << "ERROR invalid argument for user limit" << std::endl;
+							}
+							else
+								this->_channels[x]._maxUsers = std::numeric_limits<size_t>::max();								
+						}
+						else
+							user.ft_send(":461 " + user._nickname + " " +  command[0] + " :Not enough parameters\r\n");
+					}
+						
+				}
+			}
+					
+		}
+	}
+}
+

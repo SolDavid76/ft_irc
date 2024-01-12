@@ -6,7 +6,7 @@
 /*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:00:02 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/08 15:59:40 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/09 12:26:19 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class Server
 		void _PING(std::vector<std::string>& command, User& user);
 		void _JOIN(std::vector<std::string>& command, User& user);
 		void _KICK(std::vector<std::string>& command, User& user);
+		void _MODE(std::vector<std::string>& command, User& user);
 		void _INVITE(std::vector<std::string>& command, User& user);
 		void _PRIVMSG(std::vector<std::string>& command, User& user);
 };

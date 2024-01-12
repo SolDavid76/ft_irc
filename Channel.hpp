@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:39:01 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/08 16:22:40 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/10 10:57:51 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class Channel
 	// private:
 		std::string _name;
 		bool _invitationOnly;
+		bool _topicCanBeChange;
 		std::string _password;
 		size_t _maxUsers;
 		std::string _topic;
