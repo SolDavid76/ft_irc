@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/22 14:33:03 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/04 16:06:07 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/10 16:39:31 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,14 +49,15 @@ int main(int ac, char** av)
 
 			if (serv._fds[0].revents & POLLIN)
 			{
-				User newuser(accept(serv._socket, NULL, NULL));
-				if (newuser._socket.fd == -1)
+				User* newuser = new User(accept(serv._socket, NULL, NULL));
+				if (newuser->_socket.fd == -1)
 				{
 					std::cout << "accept error" << std::endl;
 					continue;
 				}
-				serv._fds.push_back(newuser._socket);
+				serv._fds.push_back(newuser->_socket);
 				serv._users.push_back(newuser);
+				std::cout << "ADRESS OF " << serv._users.size() << " = " << &(serv._users.back()) << std::endl;
 			}
 			for (size_t i = 1; i < serv._fds.size(); i++)
 			{
@@ -64,13 +65,12 @@ int main(int ac, char** av)
 				{
 					try
 					{
-						serv._users[i - 1].readSocket();
+						serv._users[i - 1]->readSocket();
 						size_t pos;
-						while ((pos = serv._users[i - 1]._buffer.find("\r\n")) != std::string::npos) //ptet mettre ca dans readSocket ?
+						while ((pos = serv._users[i - 1]->_buffer.find("\r\n")) != std::string::npos) //ptet mettre ca dans readSocket ?
 						{
-							// std::cout << "#PRINT{" << serv._users[i - 1]._buffer.substr(0, pos) << "}" << std::endl;
-							serv.execCommand(ft_split(serv._users[i - 1]._buffer, ' '), serv._users[i - 1]);
-							serv._users[i - 1]._buffer.erase(0, pos + 2);
+							serv.execCommand(ft_split(serv._users[i - 1]->_buffer, ' '), serv._users[i - 1]);
+							serv._users[i - 1]->_buffer.erase(0, pos + 2);
 						}
 					}
 					catch(std::exception const& e)

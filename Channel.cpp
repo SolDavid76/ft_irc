@@ -6,30 +6,21 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:44:35 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/08 16:23:39 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/10 16:49:47 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Channel.hpp"
 
-Channel::Channel(void)
-{
-	this->_name = "";
-	this->_invitationOnly = false;
-	this->_password = "";
-	this->_maxUsers = std::numeric_limits<size_t>::max();
-	this->_topic = "No topic is set";
-}
-
-Channel::Channel(User& owner, std::string name)
+Channel::Channel(User* owner, std::string name)
 {
 	this->_name = name;
 	this->_invitationOnly = false;
 	this->_password = "";
 	this->_maxUsers = std::numeric_limits<size_t>::max();
 	this->_topic = "No topic is set";
-	this->_owner = &owner;
-	this->_admins.push_back(&owner);
+	this->_owner = owner;
+	this->_admins.push_back(owner);
 	this->_JOIN(owner);
 }
 

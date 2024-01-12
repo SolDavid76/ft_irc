@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/08 16:26:15 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/12 11:44:33 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,11 @@ User& User::operator=(User const& src)
 		this->_id = src._id;
 		this->_irssi = src._irssi;
 		this->_socket = src._socket;
+		this->_hostname = src._hostname;
 		this->_password = src._password;
 		this->_nickname = src._nickname;
 		this->_username = src._username;
+		this->_buffer = src._buffer;
 	}
 	return (*this);
 }
