@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
+/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:39:01 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/12 11:50:44 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/12 17:53:33 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,10 @@ class Channel
 		~Channel(void);
 
 		void _JOIN(User* user);
+		void _PART(User* user, std::string msg);
 		std::string userList(void);
+		std::string modsList(void);
+		void ft_sendAll(std::string msg);
 		int findUser(std::string name);
 	// private:
 		std::string _name;

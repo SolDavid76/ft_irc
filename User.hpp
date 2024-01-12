@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
+/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/12 11:51:52 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/12 15:52:20 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,9 +50,8 @@ class User
 		void disconect(void);
 		bool isAuthentified(void);
 		void ft_send(std::string msg);
-		void tf_send(std::string msg);
-		bool isIn(std::vector<User> users);
 		bool isIn(std::vector<User*> users);
+		int findUserIn(std::vector<User*> users);
 	// private:
 		int _id;
 		bool _irssi;
@@ -66,6 +65,7 @@ class User
 		static int nextId;
 };
 
+std::vector<std::string> ft_split(const std::string& input);
 std::vector<std::string> ft_split(const std::string& input, char separator);
 
 template <typename T>

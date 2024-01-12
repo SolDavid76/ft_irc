@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
+/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/12 12:13:17 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/12 18:25:29 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,7 @@ void Server::initCommands(void)
 	this->_commands.insert(std::pair<std::string, cmdFunction>("USER", &Server::_USER));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("PING", &Server::_PING));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("JOIN", &Server::_JOIN));
+	this->_commands.insert(std::pair<std::string, cmdFunction>("PART", &Server::_PART));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("KICK", &Server::_KICK));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("MODE", &Server::_MODE));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("INVITE", &Server::_INVITE));
@@ -238,7 +239,7 @@ void Server::_PRIVMSG(std::vector<std::string>& command, User* user)
 void Server::_JOIN(std::vector<std::string>& command, User* user)
 {
 	if (command.size() == 1)
-		user->ft_send(":" + user->_hostname + " 461 " + user->_nickname + "JOIN :Not enough parameters given\r\n");
+		user->ft_send(":" + user->_hostname + " 461 " + user->_nickname + " JOIN :Not enough parameters given\r\n");
 	else
 	{
 		std::vector<std::string> args = ft_split(command[1], ',');
@@ -249,29 +250,6 @@ void Server::_JOIN(std::vector<std::string>& command, User* user)
 		{
 			int x;
 			std::string chan = (args[i][0] == '#' || args[i][0] == '&') ? args[i] : "#" + args[i];
-			// if ((x = this->findChannel(chan)) != -1)
-			// {
-			// 	if (!this->_channels[x]._invitationOnly || user.isIn(this->_channels[x]._invited))
-			// 	{
-			// 		if (this->_channels[x]._password.empty() || this->_channels[x]._password == (i < keys.size() ? keys[i] : ""))
-			// 		{
-			// 			if (this->_channels[x]._users.size() < this->_channels[x]._maxUsers)
-			// 			{
-			// 				if (!user.isIn(this->_channels[x]._users))
-			// 					this->_channels[x]._JOIN(user);
-			// 			}
-			// 			else
-			// 				user.ft_send(":" + user._hostname + " 471 " + user._nickname + " " + chan + " :Channel is full\r\n");
-			// 		}
-			// 		else
-			// 			user.ft_send(":" + user._hostname + " 475 " + user._nickname + " " + chan + " :Bad channel key\r\n");
-			// 	}
-			// 	else
-			// 		user.ft_send(":" + user._hostname + " 473 " + user._nickname + " " + chan + " :You must be invited\r\n");
-			// }
-			// else
-			// 	this->_channels.push_back(Channel(user, chan));
-
 			if ((x = this->findChannel(chan)) == -1)
 				this->_channels.push_back(Channel(user, chan));
 			else if (this->_channels[x]._invitationOnly && !user->isIn(this->_channels[x]._invited))
@@ -286,27 +264,28 @@ void Server::_JOIN(std::vector<std::string>& command, User* user)
 	}
 }
 
-void Channel::_JOIN(User* user)
+void Server::_PART(std::vector<std::string>& command, User* user)
 {
-	this->_users.push_back(user);
-	for (size_t i = 0; i < this->_users.size(); i++)
-		this->_users[i]->ft_send(":" + user->_nickname + "!" + user->_username + "@" + user->_hostname + " JOIN " + this->_name + "\r\n");
-	user->ft_send(":" + user->_hostname + " 332 " + user->_nickname + " " + this->_name + " :" + this->_topic + "\r\n");
-	user->ft_send(":" + user->_hostname + " 353 " + user->_nickname + " = " + this->_name + " :" + this->userList() + "\r\n");
-	user->ft_send(":" + user->_hostname + " 366 " + user->_nickname + " " + this->_name + " :End of name list\r\n");
-}
-
-std::string Channel::userList(void)
-{
-	std::string res;
-	for (size_t i = 0; i < this->_users.size(); i++)
+	if (command.size() == 1)
+		user->ft_send(":" + user->_hostname + " 461 " + user->_nickname + " PART :Not enough parameters given\r\n");
+	else
 	{
-		if (this->_users[i]->isIn(this->_admins))
-			res = res + "@" + this->_users[i]->_nickname + " ";
-		else
-			res = res + this->_users[i]->_nickname + " ";
+		std::vector<std::string> args = ft_split(command[1], ',');
+		for (size_t i = 0; i < args.size(); i++)
+		{
+			int x;
+			if ((x = this->findChannel(args[i])) == -1)
+				user->ft_send(":" + user->_hostname + " 403 " + user->_nickname + " " + args[i] + " :No such channel\r\n");
+			else if (!user->isIn(this->_channels[x]._users))
+				user->ft_send(":" + user->_hostname + " 442 " + user->_nickname + " " + args[i] + " :You're not on that channel\r\n");
+			else
+			{
+				this->_channels[x]._PART(user, (command.size() >= 3 ? command[2] : ":For no reason"));
+				if (this->_channels[x]._users.size() == 0)
+					this->_channels.erase(this->_channels.begin() + x);
+			}
+		}
 	}
-	return (res);
 }
 
 void Server::_INVITE(std::vector<std::string>& command, User* user)
@@ -455,7 +434,7 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 								if (limit > 0)
 								{
 									this->_channels[x]._maxUsers = limit;
-									user->ft_send(":" + user->_hostname + " 324 " + user->_nickname + " " + this->_channels[x]._name + " " + command[2] + "\r\n");
+									user->ft_send(":" + user->_hostname + " 324 " + user->_nickname + " " + this->_channels[x]._name + " " + this->_channels[x].modsList() + " :SUCCES\r\n");
 
 								}
 								else
