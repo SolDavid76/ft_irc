@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/10 16:53:12 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/12 11:44:22 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -287,16 +287,7 @@ void Channel::_JOIN(User* user)
 {
 	this->_users.push_back(user);
 	for (size_t i = 0; i < this->_users.size(); i++)
-	{
-		std::cout << "============================================" << std::endl;
-		std::cout << "ADDRESS[" << i << "]: " << this->_users[i] << std::endl;
-		std::cout << "NICKNAME[" << i << "]" << this->_users[i]->_nickname << std::endl;
-		std::cout << "USERNAME[" << i << "]" << this->_users[i]->_username << std::endl;
-		std::cout << "HOSTNAME[" << i << "]" << this->_users[i]->_hostname << std::endl;
-		std::cout << "NAME = " << this->_name << std::endl;
-		std::cout << "============================================" << std::endl;
-		this->_users[i]->tf_send(":" + user->_nickname + "!" + user->_username + "@" + user->_hostname + " JOIN " + this->_name + "\r\n");
-	}
+		this->_users[i]->ft_send(":" + user->_nickname + "!" + user->_username + "@" + user->_hostname + " JOIN " + this->_name + "\r\n");
 	user->ft_send(":" + user->_hostname + " 332 " + user->_nickname + " " + this->_name + " :" + this->_topic + "\r\n");
 	user->ft_send(":" + user->_hostname + " 353 " + user->_nickname + " = " + this->_name + " :" + this->userList() + "\r\n");
 	user->ft_send(":" + user->_hostname + " 366 " + user->_nickname + " " + this->_name + " :End of name list\r\n");

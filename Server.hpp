@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:00:02 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/10 16:53:50 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/12 11:39:02 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ class Server
 		void _USER(std::vector<std::string>& command, User* user);
 		void _PING(std::vector<std::string>& command, User* user);
 		void _JOIN(std::vector<std::string>& command, User* user);
-		// void _JOIN_aux(Channel& chan, User& user);
 		void _KICK(std::vector<std::string>& command, User* user);
 		void _INVITE(std::vector<std::string>& command, User* user);
 		void _PRIVMSG(std::vector<std::string>& command, User* user);

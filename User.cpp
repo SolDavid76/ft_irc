@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/10 16:22:18 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/12 11:44:33 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,15 +72,6 @@ bool User::isAuthentified(void)
 void User::ft_send(std::string msg)
 {
 	send(this->_socket.fd, msg.c_str(), msg.size(), 0);
-}
-
-void User::tf_send(std::string msg)
-{
-	std::cout << "============================================" << std::endl;
-	std::cout << "SOCK: " << this->_socket.fd;
-	std::cout << ", MSG: " << msg << std::endl;
-	send(this->_socket.fd, msg.c_str(), msg.size(), 0);
-	std::cout << "============================================" << std::endl;
 }
 
 bool User::isIn(std::vector<User> users)
