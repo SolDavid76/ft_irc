@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/12 11:44:33 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/12 16:39:56 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,4 +82,14 @@ bool User::isIn(std::vector<User> users)
 bool User::isIn(std::vector<User*> users)
 {
 	return (find(users.begin(), users.end(), this) != users.end());
+}
+
+int User::findUserIn(std::vector<User*> users)
+{
+    for (size_t i = 0; i < users.size(); i++)
+    {
+        if (this->_id == users[i]->_id)
+            return (i);
+    }
+    return (-1);
 }

@@ -6,7 +6,7 @@
 /*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/12 11:51:52 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/12 16:40:24 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ class User
 		void tf_send(std::string msg);
 		bool isIn(std::vector<User> users);
 		bool isIn(std::vector<User*> users);
+		int findUserIn(std::vector<User*> users);
+
 	// private:
 		int _id;
 		bool _irssi;

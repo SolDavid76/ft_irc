@@ -6,7 +6,7 @@
 /*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/12 12:13:17 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/15 10:33:56 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -380,7 +380,12 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 		else if (user->isIn(this->_channels[x]._users) == 0)
 			user->ft_send(":442 " + command[1] + " :You're not on that channel\r\n");
 		else if (user->isIn(this->_channels[x]._admins) == 0)
-			user->ft_send(":482 " + command[1] + " :You're not channel operator\r\n");
+			// user->ft_send(":482 " + command[1] + " :You're not channel operator\r\n");
+			// user->ft_send(":" + user->_hostname + "482 " + command[1] + " " + user->_nickname + ":You're not channel operator\r\n");
+			user->ft_send(":" + user->_hostname + " 482 " + user->_nickname + " " + command[1] + " :You're not channel operator\r\n");	
+
+			// user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :invalid argument for user limit\r\n");
+			
 		else 
 		{
 			if (command[2][0] != '+' && command[2][0] != '-')
@@ -402,15 +407,25 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 						int y;
 						if ((y = findUser(command[2 + j++])) != -1 && this->_users[y]->isIn(this->_channels[x]._users))
 							{
-							std::cout << "ici" << std::endl;
-
-								if (option)
+								if (option && !this->_users[y]->isIn(this->_channels[x]._admins))
+								{
 									this->_channels[x]._admins.push_back(this->_users[y]);
-								else
-									std::cout << "je dois remove" << std::endl;
+									// this->_channels[x].ft_sendAll(":" + user->_hostname + " MODE " + this->_name + " +o " + this->_users[y]->_nickname + "\r\n");
+								}
+								else if (option)
+									user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :is already an operator\r\n");
+								else if (this->_users[y] != this->_channels[x]._owner && this->_users[y]->isIn(this->_channels[x]._admins) && user->_id == this->_channels[x]._owner->_id)
+								{
+									this->_channels[x]._admins.erase(this->_channels[x]._admins.begin() + this->_users[y]->findUserIn(this->_channels[x]._admins));
+									// chose a add ici
+								}
+								else if (!this->_users[y]->isIn(this->_channels[x]._admins))
+									user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :You can't downgrade this user, he don't have privilege\r\n");
+								else if (this->_users[y]->isIn(this->_channels[x]._admins))
+									user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :You can't dowwngrade this user you have the same privelge \r\n");
 							}
 						else if (y == -1)
-							user->ft_send(":" + user->_hostname + " 482 " + user->_nickname + " " + command[1] + " :User not on that channel\r\n");	
+							user->ft_send(":" + user->_hostname + " 442 " + user->_nickname + " " + command[1] + " :User not on that channel\r\n");	
 							// user->ft_send(":442 " + command[1] + " :User not on that channel\r\n");	
 						}
 						else
@@ -459,7 +474,9 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 
 								}
 								else
-									std::cout << "ERROR invalid argument for user limit" << std::endl;
+									// std::cout << "ERROR invalid argument for user limit" << std::endl;
+									user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :invalid argument for user limit\r\n");
+
 							}
 							else
 								this->_channels[x]._maxUsers = std::numeric_limits<size_t>::max();								
