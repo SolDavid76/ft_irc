@@ -6,7 +6,7 @@
 /*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/12 16:40:24 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/15 10:36:25 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,6 @@ class User
 		void disconect(void);
 		bool isAuthentified(void);
 		void ft_send(std::string msg);
-		void tf_send(std::string msg);
-		bool isIn(std::vector<User> users);
 		bool isIn(std::vector<User*> users);
 		int findUserIn(std::vector<User*> users);
 
@@ -68,6 +66,7 @@ class User
 		static int nextId;
 };
 
+std::vector<std::string> ft_split(const std::string& input);
 std::vector<std::string> ft_split(const std::string& input, char separator);
 
 template <typename T>

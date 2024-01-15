@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/22 14:33:03 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/10 16:39:31 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/12 15:52:02 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ int main(int ac, char** av)
 						size_t pos;
 						while ((pos = serv._users[i - 1]->_buffer.find("\r\n")) != std::string::npos) //ptet mettre ca dans readSocket ?
 						{
-							serv.execCommand(ft_split(serv._users[i - 1]->_buffer, ' '), serv._users[i - 1]);
+							serv.execCommand(ft_split(serv._users[i - 1]->_buffer), serv._users[i - 1]);
 							serv._users[i - 1]->_buffer.erase(0, pos + 2);
 						}
 					}

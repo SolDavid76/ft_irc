@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
+/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:00:02 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/12 11:53:29 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/12 16:32:16 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class Server
 		void _USER(std::vector<std::string>& command, User* user);
 		void _PING(std::vector<std::string>& command, User* user);
 		void _JOIN(std::vector<std::string>& command, User* user);
+		void _PART(std::vector<std::string>& command, User* user);
 		void _MODE(std::vector<std::string>& command, User* user);
 		void _KICK(std::vector<std::string>& command, User* user);
 		void _INVITE(std::vector<std::string>& command, User* user);
