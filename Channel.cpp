@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:44:35 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/16 15:23:39 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/16 15:43:04 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,13 +96,14 @@ std::string Channel::userList(void)
 std::string Channel::modsList(void)
 {
 	std::string res = "+";
-	res += (this->_invitationOnly ? "" : "o");
+	res += (this->_invitationOnly ? "i" : "");
 	res += (this->_topicCanBeChange ? "" : "t");
 	res += (this->_password.empty() ? "" : "k");
-	res += (this->_maxUsers == std::numeric_limits<size_t>::max() ? "" : "k");
+	res += (this->_maxUsers == std::numeric_limits<size_t>::max() ? "" : "l");
 	res += " ";
 	res += (this->_password.empty() ? "" : this->_password);
 	res += (this->_maxUsers == std::numeric_limits<size_t>::max() ? "" : to_string(this->_maxUsers));
+	std::cout << "TEST :" << res << std::endl;
 	return (res);
 }
 
