@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:44:35 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/12 19:06:28 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/15 15:33:52 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,13 +87,14 @@ std::string Channel::userList(void)
 std::string Channel::modsList(void)
 {
 	std::string res = "+";
-	res += (this->_invitationOnly ? "" : "o");
+	res += (this->_invitationOnly ? "i" : "");
 	res += (this->_topicCanBeChange ? "" : "t");
 	res += (this->_password.empty() ? "" : "k");
-	res += (this->_maxUsers == std::numeric_limits<size_t>::max() ? "" : "k");
+	res += (this->_maxUsers == std::numeric_limits<size_t>::max() ? "" : "l");
 	res += " ";
 	res += (this->_password.empty() ? "" : this->_password);
 	res += (this->_maxUsers == std::numeric_limits<size_t>::max() ? "" : to_string(this->_maxUsers));
+	std::cout << "TEST :" << res << std::endl;
 	return (res);
 }
 

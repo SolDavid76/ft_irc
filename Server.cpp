@@ -6,7 +6,7 @@
 /*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/15 10:38:00 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/16 14:08:53 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -299,24 +299,23 @@ void Server::_INVITE(std::vector<std::string>& command, User* user)
 			user->ft_send(":401 " + command[2] + " :No such nick/channel\r\n");
 		else if ((x = findChannel(command[2])) != -1)
 		{
-			int i;
+			int i = findUser(command[1]);
 			if 	(!user->isIn(this->_channels[x]._users))
 				user->ft_send(":442 " + user->_nickname + " :You're not on that channel\r\n");
-			else if ((i = findUser(command[1])))
-			{
-				if (this->_users[i]->isIn(this->_channels[x]._users))
-					user->ft_send(":443 " + command[1] + " " + command[2] + ":is already on channel\r\n");
-			}
-			else if (i != -1 && this->_users[i]->isIn(this->_channels[x]._admins))
+			else if (this->_users[i]->isIn(this->_channels[x]._users))
+					user->ft_send(":443 " + command[1] + " " + command[2] + " :is already on channel\r\n");
+			else if (i != -1 && !user->isIn(this->_channels[x]._admins))
 				user->ft_send(":482 " + command[2] + " :You're not channel operator\r\n");
 			else
 			{
 				if (this->_users[i]->isIn(this->_channels[x]._invited) == 0)
 					this->_channels[x]._invited.push_back(this->_users[i]);
-				this->_users[i]->ft_send(":" + user->_nickname + " INVITE " + this->_users[i]->_nickname + " " + this->_channels[x]._name + "\r\n");
+				this->_users[i]->ft_send(":" + user->_nickname + + "@" + user->_hostname + " INVITE " + this->_users[i]->_nickname + " " + this->_channels[x]._name + "\r\n");
+
 				for (size_t j = 0; j <  this->_channels[x]._invited.size(); j++)
 					std::cout << this->_channels[x]._invited[j]->_nickname << std::endl;
-				// user->ft_send(":341 " + command[2] + " " + command[1] + "\r\n");
+				user->ft_send(":" + user->_hostname + " 341 " + user->_nickname + " " + command[2] + " :" + command[1] + "\r\n");
+	
 				// user->ft_send(":301 " + command[1] + " is absent\r\n");
 			}
 		}
@@ -332,18 +331,20 @@ void Server::_KICK(std::vector<std::string>& command, User* user)
 		int x;
 		int i;
 		if ((x = findChannel(command[1]) == -1))
-			user->ft_send(":403 " + command[1] + ":No such channel\r\n");
+			user->ft_send(":" + user->_hostname + " 403 " + ":No such channel\r\n");
 		else if (user->isIn(this->_channels[x]._users) == 0)
-			user->ft_send(":442 " + command[1] + " :You're not on that channel\r\n");
+			user->ft_send(":" + user->_hostname + " 442 " + command[1] +  " " + user->_nickname + " :You're not on that channel\r\n");
 		else if (user->isIn(this->_channels[x]._admins) == 0)
-			user->ft_send(":482 " + command[1] + " :You're not channel operator\r\n");
-		else if ((i = this->_channels[x].findUser(command[2])) != -1)
+			user->ft_send(":" + user->_hostname + " 482 " + command[1] +  " " + user->_nickname +  " :You're not channel operator\r\n");
+		else if ((i = this->_channels[x].findUser(command[2])) != -1 && !this->_channels[x]._users[i]->isIn(this->_channels[x]._admins))
 		{
-			this->_channels[x]._users[i]->ft_send(":" + user->_nickname + " " + command[0] + " " + command[1] + " " + command[2] + "\r\n");
+			this->_channels[x].ft_sendAll(":" + user->_nickname + + "@" + user->_hostname + " KICK " + " " + command[1] + " " + command[2] + "\r\n");
 			this->_channels[x]._users.erase(this->_channels[x]._users.begin() + this->_channels[x].findUser(command[2]));
 		}
+		else if (i == -1)
+			user->ft_send(":" + user->_hostname + " 442 " + command[1] +  " " + user->_nickname + " :User not on that channel\r\n");
 		else
-			std::cout << "YaR" << std::endl;
+			user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :You can't kick an operator\r\n");
 	}
 }
 
@@ -355,30 +356,37 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 	{
 		int x;
 		if ((x = findChannel(command[1])) == -1)
-			user->ft_send(":403 " + command[1] + " :No such channel\r\n");
+			user->ft_send(":" + user->_hostname + " 403 " + user->_nickname + " " + command[1] + " :No such channel\r\n");	
 		else if (user->isIn(this->_channels[x]._users) == 0)
-			user->ft_send(":442 " + command[1] + " :You're not on that channel\r\n");
+			user->ft_send(":" + user->_hostname + " 442 " + user->_nickname + " " + command[1] + " :You're not on that channel\r\n");	
 		else if (user->isIn(this->_channels[x]._admins) == 0)
-			// user->ft_send(":482 " + command[1] + " :You're not channel operator\r\n");
-			// user->ft_send(":" + user->_hostname + "482 " + command[1] + " " + user->_nickname + ":You're not channel operator\r\n");
-			user->ft_send(":" + user->_hostname + " 482 " + user->_nickname + " " + command[1] + " :You're not channel operator\r\n");	
-
-			// user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :invalid argument for user limit\r\n");
-			
+			user->ft_send(":" + user->_hostname + " 482 " + user->_nickname + " " + command[1] + " :You're not channel operator\r\n");
 		else 
 		{
 			if (command[2][0] != '+' && command[2][0] != '-')
-				std::cout << "errrrrrrrrrrr" << std::endl;
+				user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :Invalid format need '+' or '-' before flags\r\n");
 			else
 			{
 				bool option = command[2][0] == '+';
 				size_t j = 1;
 				for (size_t i = 1; i < command[2].size(); i++)
 				{
-					if (command[2][i] == 'i')
+					if (command[2][i] == '+' || command[2][i] == '-')
+						option = command[2][i] == '+';						
+					else if (command[2][i] == 'i')
+					{
+						if (!option == this->_channels[x]._invitationOnly)
+							this->_channels[x].ft_sendAll(":" + user->_nickname + "@" + user->_hostname + " MODE " + this->_channels[x]._name + (option ? " +" : " -") + "i" + "\r\n");
+
 						this->_channels[x]._invitationOnly = option;
+					}
 					else if (command[2][i] == 't')
+					{
+						if (!option == this->_channels[x]._topicCanBeChange)
+							// this->_channels[x].ft_sendAll(":" + user->_nickname + " MODE " + this->_channels[x]._name +  (option ? " +" : " -") + "t" + "\r\n");
+							this->_channels[x].ft_sendAll(":" + user->_nickname + "@" + user->_hostname + " MODE " + this->_channels[x]._name + (option ? " +" : " -") + "i" + "\r\n");
 						this->_channels[x]._topicCanBeChange = option;
+					}
 					else if (command[2][i] == 'o')
 					{
 						if (2 + j <= command.size() - 1)
@@ -389,23 +397,22 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 								if (option && !this->_users[y]->isIn(this->_channels[x]._admins))
 								{
 									this->_channels[x]._admins.push_back(this->_users[y]);
-									// this->_channels[x].ft_sendAll(":" + user->_hostname + " MODE " + this->_name + " +o " + this->_users[y]->_nickname + "\r\n");
+									this->_channels[x].ft_sendAll(":" + user->_nickname + "@" + user->_hostname + " MODE " + this->_channels[x]._name + " +o :" + this->_users[y]->_nickname + "\r\n");
 								}
 								else if (option)
 									user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :is already an operator\r\n");
 								else if (this->_users[y] != this->_channels[x]._owner && this->_users[y]->isIn(this->_channels[x]._admins) && user->_id == this->_channels[x]._owner->_id)
 								{
 									this->_channels[x]._admins.erase(this->_channels[x]._admins.begin() + this->_users[y]->findUserIn(this->_channels[x]._admins));
-									// chose a add ici
+									this->_channels[x].ft_sendAll(":" + user->_nickname + "@" + user->_hostname + " MODE " + this->_channels[x]._name + " -o :" + this->_users[y]->_nickname + "\r\n");
 								}
 								else if (!this->_users[y]->isIn(this->_channels[x]._admins))
 									user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :You can't downgrade this user, he don't have privilege\r\n");
 								else if (this->_users[y]->isIn(this->_channels[x]._admins))
-									user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :You can't dowwngrade this user you have the same privelge \r\n");
+									user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :You can't dowwngrade this user, you have the same privilege \r\n");
 							}
 						else if (y == -1)
 							user->ft_send(":" + user->_hostname + " 442 " + user->_nickname + " " + command[1] + " :User not on that channel\r\n");	
-							// user->ft_send(":442 " + command[1] + " :User not on that channel\r\n");	
 						}
 						else
 							user->ft_send(":461 " + user->_nickname + " " +  command[0] + " :Not enough parameters\r\n");
@@ -415,21 +422,27 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 					{
 						if (2 + j <= command.size() - 1)
 						{
-							std::cout << "j + 2 " << j+2 << std::endl;
-							std::cout << "command_size " << command.size() << std::endl;
 							if (option)
 							{
 								if (this->_channels[x]._password == "")
+								{
 									this->_channels[x]._password = command[2 + j++];
+									this->_channels[x].ft_sendAll(":" + user->_nickname + "@" + user->_hostname + " MODE " + this->_channels[x]._name + " +k :" + "\r\n");
+								}
 								else
-									user->ft_send(":467 " + command[1] + " :Chanel key already set");
+									user->ft_send(":" + user->_hostname + " 467 " + command[1] + " " + user->_nickname + " :Channel key already set\r\n");
+
 							}
 							else
 								{
 									if (this->_channels[x]._password == command[2 + j++])
+									{
 										this->_channels[x]._password = "";
+										this->_channels[x].ft_sendAll(":" + user->_nickname + "@" + user->_hostname + " MODE " + this->_channels[x]._name + " -k :" + "\r\n");
+									}
 									else
-										std::cout << "MAUVAIS PASSWORD" << std::endl;
+										user->ft_send(":" + user->_hostname + " 464 " + command[1] + " " + user->_nickname + " :Wrong password\r\n");
+
 								}
 						}
 						else
@@ -444,26 +457,28 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 								int limit = std::atoi(to_string(command[2 + j]).c_str());
 								for (size_t i = 0; i < command[2 + j].size(); i++)
 									if (!isdigit(command[2 + j][i]))
-										limit = -1;		
-								j++;		
+										limit = -1;
+								j++;
 								if (limit > 0)
 								{
 									this->_channels[x]._maxUsers = limit;
-									user->ft_send(":" + user->_hostname + " 324 " + user->_nickname + " " + this->_channels[x]._name + " " + this->_channels[x].modsList() + " :SUCCES\r\n");
-
+									this->_channels[x].ft_sendAll(":" + user->_nickname + "@" + user->_hostname + " MODE " + this->_channels[x]._name + " +l :" + to_string(limit) + "\r\n");
 								}
 								else
-									// std::cout << "ERROR invalid argument for user limit" << std::endl;
 									user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :invalid argument for user limit\r\n");
 
 							}
 							else
-								this->_channels[x]._maxUsers = std::numeric_limits<size_t>::max();								
+							{
+								this->_channels[x]._maxUsers = std::numeric_limits<size_t>::max();
+								this->_channels[x].ft_sendAll(":" + user->_nickname + "@" + user->_hostname + " MODE " + this->_channels[x]._name + " -l :" + "\r\n");
+							}						
 						}
 						else
 							user->ft_send(":461 " + user->_nickname + " " +  command[0] + " :Not enough parameters\r\n");
 					}
-						
+					else
+						user->ft_send(":" + user->_hostname + " 501 " + command[1] + " " + user->_nickname + " :Unknown MODE " + command[2][i] + "\r\n");
 				}
 			}
 					
