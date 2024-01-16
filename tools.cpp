@@ -6,13 +6,13 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/23 20:32:33 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/12 16:14:17 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/16 12:03:09 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-std::vector<std::string> ft_split(const std::string& input)
+std::vector<std::string> ft_split(std::string const& input)
 {
 	std::vector<std::string> res;
 	std::istringstream iss(input);
@@ -30,14 +30,15 @@ std::vector<std::string> ft_split(const std::string& input)
 		}
 		else
 		{
-			res.push_back(info.substr(0, info.size()));
+			// res.push_back(info.substr(0, info.size()));
+			res.push_back(info.substr((tmp[0] == ':' ? 1 : 0), info.size()));
 			info.erase(0, info.size());
 		}
 	}
 	return (res);
 }
-
-std::vector<std::string> ft_split(const std::string& input, char separator)
+			// res.push_back(info.substr((tmp[0] == ':' ? 1 : 0), info.size()));
+std::vector<std::string> ft_split(std::string const& input, char separator)
 {
 	std::vector<std::string> res;
 	std::istringstream iss(input);

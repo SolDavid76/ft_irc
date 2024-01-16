@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
+/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/15 10:38:00 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/16 15:39:40 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,9 @@ Server::Server(int port, std::string password)
 
 Server::~Server(void)
 {
+	close(this->_socket);
+	for (size_t i = 0; i < this->_users.size(); i++)
+		delete (this->_users[i]);
 }
 
 int Server::findUser(User* user)
@@ -72,21 +75,12 @@ int Server::findUser(std::string user)
 
 int Server::findChannel(std::string channel)
 {
-	// std::cout << "name " << channel << std::endl;
 	for (size_t i = 0; i < this->_channels.size(); i++)
 	{
-	// std::cout << "channel_name " << this->_channels[i]._name << std::endl;
 		if (this->_channels[i]._name == channel)
 			return (i);
 	}
 	return (-1);
-}
-
-void Server::disconect(User* user)
-{
-	user->disconect();
-	this->_fds.erase(this->_fds.begin() + this->findUser(user) + 1);
-	this->_users.erase(this->_users.begin() + this->findUser(user));
 }
 
 void Server::initCommands(void)
@@ -98,17 +92,17 @@ void Server::initCommands(void)
 	this->_commands.insert(std::pair<std::string, cmdFunction>("PING", &Server::_PING));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("JOIN", &Server::_JOIN));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("PART", &Server::_PART));
+	this->_commands.insert(std::pair<std::string, cmdFunction>("TOPIC", &Server::_TOPIC));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("KICK", &Server::_KICK));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("MODE", &Server::_MODE));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("INVITE", &Server::_INVITE));
 	this->_commands.insert(std::pair<std::string, cmdFunction>("PRIVMSG", &Server::_PRIVMSG));
+	this->_commands.insert(std::pair<std::string, cmdFunction>("QUIT", &Server::_QUIT));
 }
 
 bool isAuthenticationFunction(std::string const& input)
 {
-	if (input == "CAP" || input == "PASS" || input == "NICK" || input == "USER")
-		return (true);
-	return (false);
+	return (input == "CAP" || input == "PASS" || input == "NICK" || input == "USER" || input == "QUIT");
 }
 
 void Server::execCommand(std::vector<std::string> command, User* user)
@@ -117,13 +111,13 @@ void Server::execCommand(std::vector<std::string> command, User* user)
 	for (size_t i = 0; i < command.size(); i++)
 		std::cout << command[i] << " ";
 	std::cout << "]" << std::endl;
+
+	user->_buffer.erase(0, user->_buffer.find("\r\n") + 2);
 	if (isAuthenticationFunction(command[0]) || user->isAuthentified())
 	{
 		std::map<std::string, cmdFunction>::iterator it = this->_commands.find(command[0]);
 		if (it != this->_commands.end())
 			(this->*(it->second))(command, user);
-		else
-			std::cout << "Invalid command" << std::endl;
 	}
 	else
 		user->ft_send("You are not yet registered\r\n");
@@ -138,63 +132,71 @@ void Server::_CAP(std::vector<std::string>& command, User* user)
 void Server::_PASS(std::vector<std::string>& command, User* user)
 {
 	if (!user->_irssi)
-		throw ft_exception("Connection closed");
-	if (command.size() > 1)
-	{
-		if (this->_password == command[1])
-			user->_password = command[1];
-		else
-			throw ft_exception("Wrong password");
-	}
+		this->disconect(user, "No CAP LS");
+	else if (command.size() == 1)
+		user->ft_send(":" + user->_hostname + " 461 " + user->_nickname + " PASS :Not enough parameters given\r\n");
+	else if (!user->_password.empty())
+		user->ft_send(":" + user->_hostname + " 462 " + user->_nickname + " :Unauthorized command (already registered)\r\n");
+	else if (this->_password == command[1])
+		user->_password = command[1];
 	else
+		this->disconect(user, "Wrong password");
+}
+//problemz
+void Server::disconect(User* user, std::string msg)
+{
+	user->ft_send(msg + "\r\n");
+	this->_fds.erase(this->_fds.begin() + this->findUser(user) + 1);
+	this->_users.erase(this->_users.begin() + this->findUser(user));
+	delete (user);
+	throw ft_exception("Someone disconnected ! (" + msg + ")");
+}
+
+void Server::broadcast(User* user, std::string msg)
+{
+	for (size_t i = 0; i < this->_channels.size(); i++)
 	{
-		user->ft_send("Your password is " + user->_password + "\r\n");
-		std::cout << "Your password is " << user->_password << std::endl;
+		if (user->isIn(this->_channels[i]._users))
+			this->_channels[i].ft_sendAll(user, msg);
 	}
 }
 
 void Server::_NICK(std::vector<std::string>& command, User* user)
 {
 	if (user->_password.empty())
-		throw ft_exception("Connection closed");
-	if (command.size() > 1)
-	{
-		if (command[1][0] == '&' || command[1][0] == '#')
-		{
-			std::string errMsg = "Your nickname can't begin with '#' or '&' !";
-			std::cout << errMsg << std::endl;
-			user->ft_send(errMsg += "\r\n");
-		}
-		else
-		{
-			std::string msg = ":" + user->_nickname;
-			user->_nickname = command[1];
-			user->ft_send(msg += " NICK " + user->_nickname + "\r\n");
-		}
-		//oh sa mewe j'ai une idee de fou pour faire ces trois lignes en une seule.
-	}
+		this->disconect(user, "No password");
+	else if (command.size() == 1)
+		user->ft_send("Your nickname is " + user->_nickname + "\r\n");
+	else if (command[1][0] == '&' || command[1][0] == '#')
+		user->ft_send("Your nickname can't begin with '#' or '&' !\r\n");
+	else if (this->findUser(command[1]) != -1)
+		user->ft_send(":" + user->_hostname + " 433 * " + command[1] + " :Nickname is already in use\r\n");
 	else
-		std::cout << "Your nickname is " << user->_nickname << std::endl;
+	{
+		user->ft_send(":" + user->_nickname + " NICK " + command[1] + "\r\n");
+		this->broadcast(user, ":" + user->_nickname + "!" + user->_username + "@" + user->_hostname + " NICK " + command[1] + "\r\n");
+		user->_nickname = command[1];
+	}
 }
 
 void Server::_USER(std::vector<std::string>& command, User* user)
 {
 	if (user->_nickname.empty())
-			throw ft_exception("Connection closed");
-	if (command.size() >= 4)
+		this->disconect(user, "No nickname");
+	if (command.size() >= 5)
 	{
 		if (!user->_username.empty())
-			user->ft_send("462 " + user->_nickname + " :You may not reregister\r\n");
+			user->ft_send(":" + user->_hostname + " 462 " + user->_nickname + " :Unauthorized command (already registered)\r\n");
 		else
 		{
 			user->_username = command[1];
 			user->_hostname = command[3];
-			user->ft_send(":" + user->_hostname + " 001 " + user->_nickname + " :Welcome\n");
-			std::cout << "Someone is connected . . ." << std::endl;
+			user->ft_send(":" + user->_hostname + " 001 " + user->_nickname + " :Welcome\r\n");
+			std::cout << "Someone connected !" << std::endl;
 		}
 	}
 	else
-		user->ft_send("461 " + user->_nickname + " " +  command[0] + " :Not enough parameters\r\n");
+		user->ft_send(":" + user->_hostname + " 461 " + user->_nickname + " USER :Not enough parameters given\r\n");
 }
 
 void Server::_PING(std::vector<std::string>& command, User* user)
@@ -202,7 +204,7 @@ void Server::_PING(std::vector<std::string>& command, User* user)
 	if (command.size() > 1)
 		user->ft_send("PONG " + command[1] + "\r\n");
 	else
-		user->ft_send("409 " + user->_nickname + " :No origin specified\r\n");
+		user->ft_send(":" + user->_hostname + " 409 " + user->_nickname + " :No origin specified\r\n");
 }
 
 void Server::_PRIVMSG(std::vector<std::string>& command, User* user)
@@ -280,12 +282,52 @@ void Server::_PART(std::vector<std::string>& command, User* user)
 				user->ft_send(":" + user->_hostname + " 442 " + user->_nickname + " " + args[i] + " :You're not on that channel\r\n");
 			else
 			{
-				this->_channels[x]._PART(user, (command.size() >= 3 ? command[2] : ":For no reason"));
+				this->_channels[x].leaveChannel(user, "PART", (command.size() > 2 ? command[2] : ":For no reason"));
 				if (this->_channels[x]._users.size() == 0)
 					this->_channels.erase(this->_channels.begin() + x);
 			}
 		}
 	}
+}
+
+void Server::_TOPIC(std::vector<std::string>& command, User* user)
+{
+	if (command.size() == 1)
+		user->ft_send(":" + user->_hostname + " 461 " + user->_nickname + " TOPIC :Not enough parameters given\r\n");
+	else
+	{
+		int x;
+		if ((x = this->findChannel(command[1]) == -1))
+			user->ft_send(":" + user->_hostname + " 403 " + user->_nickname + " " + command[1] + " :No such channel\r\n");
+		else if (!user->isIn(this->_channels[x]._users))
+			user->ft_send(":" + user->_hostname + " 442 " + user->_nickname + " " + command[1] + " :You're not on that channel\r\n");
+		else if (command.size() == 2)
+			user->ft_send(":" + user->_hostname + " " + (this->_channels[x]._topic.empty() ? "331" : "332") + " " + user->_nickname + " " + this->_channels[x]._name + " :" + (this->_channels[x]._topic.empty() ? "No topic is set" : this->_channels[x]._topic) + "\r\n");
+		else if (this->_channels[x]._topicCanBeChange && !user->isIn(this->_channels[x]._admins))
+			user->ft_send(":" + user->_hostname + " 482 " + user->_nickname + " " + command[1] + " :You're not channel operator\r\n");
+		else
+		{
+			this->_channels[x]._topic = command[2];
+			this->_channels[x].ft_sendAll(":" + user->_nickname + "!" + user->_username + "@" + user->_hostname + " TOPIC " + this->_channels[x]._name + " :" + command[2] + "\r\n");
+		}
+	}
+}
+
+void Server::_QUIT(std::vector<std::string>& command, User* user)
+{
+	for (size_t i = 0; i < this->_channels.size(); i++)
+	{
+		if (user->isIn(this->_channels[i]._users))
+		{
+			this->_channels[i].leaveChannel(user, "PART", (command.size() > 1 ? command[1] : ":For no reason"));
+			if (this->_channels[i]._users.size() == 0)
+					this->_channels.erase(this->_channels.begin() + i);
+		}
+	}
+	this->_fds.erase(this->_fds.begin() + this->findUser(user) + 1);
+	this->_users.erase(this->_users.begin() + this->findUser(user));
+	delete (user);
+	throw ft_exception("Someone disconnected ! (QUIT)");
 }
 
 void Server::_INVITE(std::vector<std::string>& command, User* user)
@@ -361,7 +403,7 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 		else if (user->isIn(this->_channels[x]._admins) == 0)
 			// user->ft_send(":482 " + command[1] + " :You're not channel operator\r\n");
 			// user->ft_send(":" + user->_hostname + "482 " + command[1] + " " + user->_nickname + ":You're not channel operator\r\n");
-			user->ft_send(":" + user->_hostname + " 482 " + user->_nickname + " " + command[1] + " :You're not channel operator\r\n");	
+			user->ft_send(":" + user->_hostname + " 482 " + user->_nickname + " " + command[1] + " :You're not channel operator\r\n");
 
 			// user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :invalid argument for user limit\r\n");
 			

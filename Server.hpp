@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:00:02 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/12 16:32:16 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/16 14:01:28 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ class Server
 
 		typedef void (Server::*cmdFunction)(std::vector<std::string>&, User*);
 
-		void disconect(User* user);
+		void disconect(User* user, std::string msg);
+		void broadcast(User* user, std::string msg);
 		void initCommands(void);
 		int findUser(User* user);
 		int findUser(User& user);
@@ -45,8 +46,10 @@ class Server
 		void _PING(std::vector<std::string>& command, User* user);
 		void _JOIN(std::vector<std::string>& command, User* user);
 		void _PART(std::vector<std::string>& command, User* user);
-		void _MODE(std::vector<std::string>& command, User* user);
+		void _QUIT(std::vector<std::string>& command, User* user);
 		void _KICK(std::vector<std::string>& command, User* user);
+		void _MODE(std::vector<std::string>& command, User* user);
+		void _TOPIC(std::vector<std::string>& command, User* user);
 		void _INVITE(std::vector<std::string>& command, User* user);
 		void _PRIVMSG(std::vector<std::string>& command, User* user);
 };
