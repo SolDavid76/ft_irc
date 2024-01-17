@@ -1,6 +1,7 @@
 .idea
 .vscode
 *.pdf
+ircserv
 
 #Prerequisites
 *.d

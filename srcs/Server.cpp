@@ -6,7 +6,7 @@
 /*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/17 15:52:49 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/17 16:07:10 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,14 +113,12 @@ void Server::execCommand(std::vector<std::string> command, User* user)
 	std::cout << "]" << std::endl;
 
 	user->_buffer.erase(0, user->_buffer.find("\r\n") + 2);
-	if (isAuthenticationFunction(command[0]) || user->isAuthentified())
+	if (command.size() != 0 && (isAuthenticationFunction(command[0]) || user->isAuthentified()))
 	{
 		std::map<std::string, cmdFunction>::iterator it = this->_commands.find(command[0]);
 		if (it != this->_commands.end())
 			(this->*(it->second))(command, user);
 	}
-	else
-		user->ft_send("You are not yet registered\r\n");
 }
 
 void Server::_CAP(std::vector<std::string>& command, User* user)
