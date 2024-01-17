@@ -6,7 +6,7 @@
 /*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/17 11:49:16 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/17 15:52:49 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -426,7 +426,7 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 					else if (command[2][i] == 't')
 					{
 						if (!option == this->_channels[x]._topicCanBeChange)
-							this->_channels[x].ft_sendAll(":" + user->_nickname + "@" + user->_hostname + " MODE " + this->_channels[x]._name + (option ? " +" : " -") + "i" + "\r\n");
+							this->_channels[x].ft_sendAll(":" + user->_nickname + "@" + user->_hostname + " MODE " + this->_channels[x]._name + (option ? " +" : " -") + "t" + "\r\n");
 						this->_channels[x]._topicCanBeChange = option;
 					}
 					else if (command[2][i] == 'o')
@@ -491,7 +491,7 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 					}
 					else if (command[2][i] == 'l')
 					{
-						if (2 + j <= command.size() - 1)
+						if ((2 + j <= command.size() - 1))
 						{
 							if (option)
 							{
@@ -507,14 +507,13 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 								}
 								else
 									user->ft_send(":" + user->_hostname + " 4242 " + command[1] + " " + user->_nickname + " :invalid argument for user limit\r\n");
-
 							}
-							else
-							{
-								this->_channels[x]._maxUsers = std::numeric_limits<size_t>::max();
-								this->_channels[x].ft_sendAll(":" + user->_nickname + "@" + user->_hostname + " MODE " + this->_channels[x]._name + " -l :" + "\r\n");
-							}						
 						}
+						else if (!option)
+						{
+							this->_channels[x]._maxUsers = std::numeric_limits<size_t>::max();
+							this->_channels[x].ft_sendAll(":" + user->_nickname + "@" + user->_hostname + " MODE " + this->_channels[x]._name + " -l\r\n");
+						}						
 						else
 							user->ft_send(":" + user->_hostname + " 461 " + user->_nickname + " " + command[0] + " :Not enough parameters\r\n");										
 					}
