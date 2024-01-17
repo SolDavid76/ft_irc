@@ -1,27 +1,42 @@
-SRCS	=	main.cpp\
+SRCS_DIR	= srcs/
+
+
+SRC	=	main.cpp\
 			Server.cpp\
 			Channel.cpp\
 			User.cpp\
 			tools.cpp\
 
-OBJS	=	${SRCS:.cpp=.o}
 
-NAME	=	a.out
+SRCS =$(addprefix $(SRCS_DIR), $(SRC))
+
+INCS = -I ./includes/
+
+OBJS_DIR = obj/
+
+OBJ	=	${SRC:.cpp=.o}
+
+OBJS = $(addprefix $(OBJS_DIR), $(OBJ))
+
+NAME	=	ircserv
 
 CC		=	c++
 
 CCFLAGS	=	-Wall -Wextra -Werror -std=c++98 -g
 
-all: 	${NAME}
+all: 	$(OBJS_DIR) ${NAME}
 
-.cpp.o:
-	${CC} ${CCFLAGS} -c $< -o $@
+$(OBJS_DIR)%.o: $(SRCS_DIR)%.cpp
+	${CC} ${CCFLAGS} -c $< -o $@ ${INCS}
 
 $(NAME): $(OBJS)
 	${CC} ${CCFLAGS} ${OBJS} -o ${NAME}
 
+$(OBJS_DIR):
+	mkdir $(OBJS_DIR)
+
 clean:
-	rm -f ${OBJS}
+	rm -rf ${OBJS_DIR}
 
 fclean: clean
 	rm -f ${NAME}
