@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/15 15:26:51 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/18 00:16:00 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@
 # include <map>
 # include <sstream>
 # include <limits>
+# include <cstdlib>
 
 # include "string"
 

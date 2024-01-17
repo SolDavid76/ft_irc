@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:00:02 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/16 14:01:28 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/17 23:52:37 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ class Server
 		void _TOPIC(std::vector<std::string>& command, User* user);
 		void _INVITE(std::vector<std::string>& command, User* user);
 		void _PRIVMSG(std::vector<std::string>& command, User* user);
+		void jarvis(std::vector<std::string>& command, User* user);
 };
 
 class ft_exception: public std::exception

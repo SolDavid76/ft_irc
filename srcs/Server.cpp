@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
+/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/17 16:07:10 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/18 00:22:34 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,16 +53,6 @@ int Server::findUser(User* user)
 	return (-1);
 }
 
-int Server::findUser(User& user)
-{
-	for (size_t i = 0; i < this->_users.size(); i++)
-	{
-		if (this->_users[i]->_id == user._id)
-			return (i);
-	}
-	return (-1);
-}
-
 int Server::findUser(std::string user)
 {
 	for (size_t i = 0; i < this->_users.size(); i++)
@@ -81,6 +71,24 @@ int Server::findChannel(std::string channel)
 			return (i);
 	}
 	return (-1);
+}
+
+void Server::disconect(User* user, std::string msg)
+{
+	user->ft_send(msg + "\r\n");
+	this->_fds.erase(this->_fds.begin() + this->findUser(user) + 1);
+	this->_users.erase(this->_users.begin() + this->findUser(user));
+	delete (user);
+	throw ft_exception("Someone disconnected ! (" + msg + ")");
+}
+
+void Server::broadcast(User* user, std::string msg)
+{
+	for (size_t i = 0; i < this->_channels.size(); i++)
+	{
+		if (user->isIn(this->_channels[i]._users))
+			this->_channels[i].ft_sendAll(user, msg);
+	}
 }
 
 void Server::initCommands(void)
@@ -107,10 +115,10 @@ bool isAuthenticationFunction(std::string const& input)
 
 void Server::execCommand(std::vector<std::string> command, User* user)
 {
-	std::cout << "[" << (user->_nickname.empty() ? "IDK" : user->_nickname) << "][";
+	std::cout << (user->_nickname.empty() ? "#" + to_string(user->_id) : user->_nickname) << ": ";
 	for (size_t i = 0; i < command.size(); i++)
-		std::cout << command[i] << " ";
-	std::cout << "]" << std::endl;
+		std::cout << command[i] << (i != command.size() - 1 ? " " : "");
+	std::cout << ";" << std::endl;
 
 	user->_buffer.erase(0, user->_buffer.find("\r\n") + 2);
 	if (command.size() != 0 && (isAuthenticationFunction(command[0]) || user->isAuthentified()))
@@ -140,24 +148,6 @@ void Server::_PASS(std::vector<std::string>& command, User* user)
 	else
 		this->disconect(user, "Wrong password");
 }
-//problemz
-void Server::disconect(User* user, std::string msg)
-{
-	user->ft_send(msg + "\r\n");
-	this->_fds.erase(this->_fds.begin() + this->findUser(user) + 1);
-	this->_users.erase(this->_users.begin() + this->findUser(user));
-	delete (user);
-	throw ft_exception("Someone disconnected ! (" + msg + ")");
-}
-
-void Server::broadcast(User* user, std::string msg)
-{
-	for (size_t i = 0; i < this->_channels.size(); i++)
-	{
-		if (user->isIn(this->_channels[i]._users))
-			this->_channels[i].ft_sendAll(user, msg);
-	}
-}
 
 void Server::_NICK(std::vector<std::string>& command, User* user)
 {
@@ -167,7 +157,7 @@ void Server::_NICK(std::vector<std::string>& command, User* user)
 		user->ft_send("Your nickname is " + user->_nickname + "\r\n");
 	else if (command[1][0] == '&' || command[1][0] == '#')
 		user->ft_send("Your nickname can't begin with '#' or '&' !\r\n");
-	else if (this->findUser(command[1]) != -1)
+	else if (this->findUser(command[1]) != -1 || command[1] == "Jarvis")
 		user->ft_send(":" + user->_hostname + " 433 * " + command[1] + " :Nickname is already in use\r\n");
 	else
 	{
@@ -180,7 +170,7 @@ void Server::_NICK(std::vector<std::string>& command, User* user)
 void Server::_USER(std::vector<std::string>& command, User* user)
 {
 	if (user->_nickname.empty())
-		this->disconect(user, "No nickname");
+		this->disconect(user, "Wrong nickname");
 	if (command.size() >= 5)
 	{
 		if (!user->_username.empty())
@@ -214,6 +204,8 @@ void Server::_PRIVMSG(std::vector<std::string>& command, User* user)
 			int i = findUser(command[1]);
 			if (i != -1)
 				this->_users[i]->ft_send(":" + user->_nickname + "@" + user->_hostname + " PRIVMSG " + this->_users[findUser(command[1])]->_nickname + " " + command[2] + "\r\n");
+			else if (command[1] == "Jarvis")
+				this->jarvis(command, user);
 			else
 				user->ft_send(":" + user->_hostname + " 411 " + user->_nickname + " :User not found\n");
 		}
@@ -234,6 +226,29 @@ void Server::_PRIVMSG(std::vector<std::string>& command, User* user)
 	}
 	else
 		user->ft_send(":" + user->_hostname + " 412 " + user->_nickname + " :No text to send\r\n");
+}
+
+void Server::jarvis(std::vector<std::string>& command, User* user)
+{
+	if (command[2] == "!help")
+		user->ft_send(":Jarvis@STARK.INC PRIVMSG " + user->_nickname + " :There is a list of my features: !users, !quoi, !meow, !coinflip, !stark.\r\n");
+	else if (command[2] == "!users")
+	{
+		std::string users;
+		for (size_t i = 0; i < this->_users.size(); i++)
+			users += this->_users[i]->_nickname + (i != this->_users.size() - 1 ? ", " : "");
+		user->ft_send(":Jarvis@STARK.INC PRIVMSG " + user->_nickname + " :There is a list of users on the server: " + users + "\r\n");
+	}
+	else if (command[2] == "!quoi")
+		user->ft_send(":Jarvis@STARK.INC PRIVMSG " + user->_nickname + " :FEUR\r\n");
+	else if (command[2] == "!meow")
+		user->ft_send(":Jarvis@STARK.INC PRIVMSG " + user->_nickname + " :MDR t'a cru j'ai tout fait ? (pour Enzo)\r\n");
+	else if (command[2] == "!coinflip")
+		user->ft_send(":Jarvis@STARK.INC PRIVMSG " + user->_nickname + " :" + (std::rand() % 2 ? "Heads\r\n" : "Tails\r\n"));
+	else if (command[2] == "!stark")
+		user->ft_send(":Jarvis@STARK.INC PRIVMSG " + user->_nickname + " :I'm at your service, boss\r\n");
+	else
+		user->ft_send(":Jarvis@STARK.INC PRIVMSG " + user->_nickname + " :Get some help with !help\r\n");
 }
 
 void Server::_JOIN(std::vector<std::string>& command, User* user)
