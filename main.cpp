@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/22 14:33:03 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/12 15:52:02 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/16 11:43:37 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,10 @@
 void handler(int signal)
 {
 	if (signal == SIGINT)
-		exit(0);
+		throw ft_exception("Closing the server !");
 	if (signal == SIGQUIT)
-		exit(0);
+		throw ft_exception("Closing the server !");
+	(void)signal;
 }
 
 void User::readSocket(void)
@@ -25,8 +26,8 @@ void User::readSocket(void)
 	std::vector<char> tmp(512, 0);
 
 	if (recv(this->_socket.fd, tmp.data(), tmp.size() - 1, 0) == 0)
-		throw ft_exception("Connection closed");
-	this->_buffer += tmp.data();
+		this->_buffer.append("QUIT\r\n");
+	this->_buffer.append(tmp.data());
 }
 
 int main(int ac, char** av)
@@ -52,12 +53,11 @@ int main(int ac, char** av)
 				User* newuser = new User(accept(serv._socket, NULL, NULL));
 				if (newuser->_socket.fd == -1)
 				{
-					std::cout << "accept error" << std::endl;
+					std::cerr << "accept error" << std::endl;
 					continue;
 				}
 				serv._fds.push_back(newuser->_socket);
 				serv._users.push_back(newuser);
-				std::cout << "ADRESS OF " << serv._users.size() << " = " << &(serv._users.back()) << std::endl;
 			}
 			for (size_t i = 1; i < serv._fds.size(); i++)
 			{
@@ -66,18 +66,12 @@ int main(int ac, char** av)
 					try
 					{
 						serv._users[i - 1]->readSocket();
-						size_t pos;
-						while ((pos = serv._users[i - 1]->_buffer.find("\r\n")) != std::string::npos) //ptet mettre ca dans readSocket ?
-						{
+						while (serv._users[i - 1]->_buffer.find("\r\n") != std::string::npos) //ptet mettre ca dans readSocket ?
 							serv.execCommand(ft_split(serv._users[i - 1]->_buffer), serv._users[i - 1]);
-							serv._users[i - 1]->_buffer.erase(0, pos + 2);
-						}
 					}
 					catch(std::exception const& e)
 					{
 						std::cerr << e.what() << std::endl;
-						serv.disconect(serv._users[i - 1]);
-						i--;
 					}
 				}
 			}

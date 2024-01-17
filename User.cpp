@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
+/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/15 10:39:05 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/16 11:50:31 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,11 +49,6 @@ User& User::operator=(User const& src)
 
 User::~User(void)
 {
-}
-
-void User::disconect(void)
-{
-	std::cout << (this->_nickname.empty() ? "#" + to_string(this->_id) : this->_nickname) << " has been disconnected !" << std::endl;
 	close(this->_socket.fd);
 }
 
