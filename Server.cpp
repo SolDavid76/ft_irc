@@ -6,7 +6,7 @@
 /*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/16 14:08:53 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/17 10:50:10 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -291,7 +291,7 @@ void Server::_PART(std::vector<std::string>& command, User* user)
 void Server::_INVITE(std::vector<std::string>& command, User* user)
 {
 	if (command.size() < 3)
-		user->ft_send("461 " + user->_nickname + " " +  command[0] + " :Not enough parameters\r\n");
+		user->ft_send(":" + user->_hostname + " 461 " + user->_nickname + " " + command[0] + " :Not enough parameters\r\n");
 	else
 	{
 		int x;
@@ -301,11 +301,11 @@ void Server::_INVITE(std::vector<std::string>& command, User* user)
 		{
 			int i = findUser(command[1]);
 			if 	(!user->isIn(this->_channels[x]._users))
-				user->ft_send(":442 " + user->_nickname + " :You're not on that channel\r\n");
+				user->ft_send(":" + user->_hostname + " 442 " + command[2] +  " " + user->_nickname + " :You're not on that channel\r\n");
 			else if (this->_users[i]->isIn(this->_channels[x]._users))
-					user->ft_send(":443 " + command[1] + " " + command[2] + " :is already on channel\r\n");
+					user->ft_send(":" + user->_hostname + " 443 "+ command[1] + " " + command[2] + " :is already on channel\r\n");
 			else if (i != -1 && !user->isIn(this->_channels[x]._admins))
-				user->ft_send(":482 " + command[2] + " :You're not channel operator\r\n");
+				user->ft_send(":" + user->_hostname + " 482 " + command[2] +  " " + user->_nickname +  " :You're not channel operator\r\n");
 			else
 			{
 				if (this->_users[i]->isIn(this->_channels[x]._invited) == 0)
@@ -325,7 +325,7 @@ void Server::_INVITE(std::vector<std::string>& command, User* user)
 void Server::_KICK(std::vector<std::string>& command, User* user)
 {
 	if (command.size() < 3)
-		user->ft_send("461 " + user->_nickname + " " +  command[0] + " :Not enough parameters\r\n");
+		user->ft_send(":" + user->_hostname + " 461 " + user->_nickname + " " + command[0] + " :Not enough parameters\r\n");
 	else
 	{
 		int x;
@@ -350,9 +350,12 @@ void Server::_KICK(std::vector<std::string>& command, User* user)
 
 void Server::_MODE(std::vector<std::string>& command, User* user)
 {
-	if (command.size() < 3)
-		user->ft_send("461 " + user->_nickname + " " +  command[0] + " :Not enough parameters\r\n");
-	else
+	int y;
+	if (command.size() < 2)
+		user->ft_send(":" + user->_hostname + " 461 " + user->_nickname + " " + command[0] + " :Not enough parameters\r\n");
+	else if ((y = findUser(command[1])) != -1)
+		return;
+	else if (command.size() >= 3)
 	{
 		int x;
 		if ((x = findChannel(command[1])) == -1)
@@ -383,7 +386,6 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 					else if (command[2][i] == 't')
 					{
 						if (!option == this->_channels[x]._topicCanBeChange)
-							// this->_channels[x].ft_sendAll(":" + user->_nickname + " MODE " + this->_channels[x]._name +  (option ? " +" : " -") + "t" + "\r\n");
 							this->_channels[x].ft_sendAll(":" + user->_nickname + "@" + user->_hostname + " MODE " + this->_channels[x]._name + (option ? " +" : " -") + "i" + "\r\n");
 						this->_channels[x]._topicCanBeChange = option;
 					}
@@ -415,8 +417,7 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 							user->ft_send(":" + user->_hostname + " 442 " + user->_nickname + " " + command[1] + " :User not on that channel\r\n");	
 						}
 						else
-							user->ft_send(":461 " + user->_nickname + " " +  command[0] + " :Not enough parameters\r\n");
-										
+							user->ft_send(":" + user->_hostname + " 461 " + user->_nickname + " " + command[0] + " :Not enough parameters\r\n");										
 					}
 					else if (command[2][i] == 'k')
 					{
@@ -446,7 +447,7 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 								}
 						}
 						else
-							user->ft_send(":461 " + user->_nickname + " " +  command[0] + " :Not enough parameters\r\n");
+							user->ft_send(":" + user->_hostname + " 461 " + user->_nickname + " " + command[0] + " :Not enough parameters\r\n");										
 					}
 					else if (command[2][i] == 'l')
 					{
@@ -475,7 +476,7 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 							}						
 						}
 						else
-							user->ft_send(":461 " + user->_nickname + " " +  command[0] + " :Not enough parameters\r\n");
+							user->ft_send(":" + user->_hostname + " 461 " + user->_nickname + " " + command[0] + " :Not enough parameters\r\n");										
 					}
 					else
 						user->ft_send(":" + user->_hostname + " 501 " + command[1] + " " + user->_nickname + " :Unknown MODE " + command[2][i] + "\r\n");
