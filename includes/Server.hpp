@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:00:02 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/17 23:52:37 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/18 13:22:26 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ class Server
 		void broadcast(User* user, std::string msg);
 		void initCommands(void);
 		int findUser(User* user);
-		int findUser(User& user);
 		int findUser(std::string user);
 		int findChannel(std::string channel);
 		void execCommand(std::vector<std::string> command, User* user);

@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/22 14:33:03 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/17 23:06:48 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/18 12:54:42 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,13 +51,13 @@ int main(int ac, char** av)
 			if (serv._fds[0].revents & POLLIN)
 			{
 				User* newUser = new User(accept(serv._socket, NULL, NULL));
-				if (newUser->_socket.fd == -1)
+				if (newUser->getSocket().fd == -1)
 				{
 					std::cerr << "accept error" << std::endl;
 					delete (newUser);
 					continue;
 				}
-				serv._fds.push_back(newUser->_socket);
+				serv._fds.push_back(newUser->getSocket());
 				serv._users.push_back(newUser);
 			}
 			for (size_t i = 1; i < serv._fds.size(); i++)
@@ -67,8 +67,8 @@ int main(int ac, char** av)
 					try
 					{
 						serv._users[i - 1]->readSocket();
-						while (serv._users[i - 1]->_buffer.find("\r\n") != std::string::npos) //ptet mettre ca dans readSocket ?
-							serv.execCommand(ft_split(serv._users[i - 1]->_buffer), serv._users[i - 1]);
+						while (serv._users[i - 1]->getBuffer().find("\r\n") != std::string::npos)
+							serv.execCommand(ft_split(serv._users[i - 1]->getBuffer()), serv._users[i - 1]);
 					}
 					catch(std::exception const& e)
 					{

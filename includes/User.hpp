@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 15:30:59 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/18 00:16:00 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/18 12:55:21 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,28 @@ class User
 		bool isIn(std::vector<User*> users);
 		int findUserIn(std::vector<User*> users);
 
-	// private:
+		/* GETTERS */
+		int getId() const { return _id; }
+		bool getIrssi() const { return _irssi; }
+		const pollfd& getSocket() const { return _socket; }
+		const std::string& getHostname() const { return _hostname; }
+		const std::string& getPassword() const { return _password; }
+		const std::string& getNickname() const { return _nickname; }
+		const std::string& getUsername() const { return _username; }
+		const std::string& getBuffer() const { return _buffer; }
+
+		/* SETTERS */
+		void setId(int id) { _id = id; }
+		void setIrssi(bool irssi) { _irssi = irssi; }
+		void setSocket(const pollfd& socket) { _socket = socket; }
+		void setHostname(const std::string& hostname) { _hostname = hostname; }
+		void setPassword(const std::string& password) { _password = password; }
+		void setNickname(const std::string& nickname) { _nickname = nickname; }
+		void setUsername(const std::string& username) { _username = username; }
+		void setBuffer(const std::string& buffer) { _buffer = buffer; }
+
+		static int nextId;
+	private:
 		int _id;
 		bool _irssi;
 		pollfd _socket;
@@ -64,11 +85,10 @@ class User
 		std::string _username;
 		std::string _buffer;
 
-		static int nextId;
 };
 
-std::vector<std::string> ft_split(const std::string& input);
-std::vector<std::string> ft_split(const std::string& input, char separator);
+std::vector<std::string> ft_split(std::string const& input);
+std::vector<std::string> ft_split(std::string const& input, char separator);
 
 template <typename T>
 std::string to_string(T const& value)

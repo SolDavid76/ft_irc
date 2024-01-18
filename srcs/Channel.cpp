@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:44:35 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/16 15:43:04 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/18 13:08:45 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void Channel::ft_sendAll(User* user, std::string msg)
 {
 	for (size_t i = 0; i < this->_users.size(); i++)
 	{
-		if (user->_id != this->_users[i]->_id)
+		if (user->getId() != this->_users[i]->getId())
 			this->_users[i]->ft_send(msg);
 	}
 }
@@ -74,7 +74,7 @@ int Channel::findUser(std::string name)
 {
 	for (size_t i = 0; i < this->_users.size(); i++)
 	{
-		if (this->_users[i]->_nickname == name)
+		if (this->_users[i]->getNickname() == name)
 			return (i);
 	}
 	return (-1);
@@ -86,9 +86,9 @@ std::string Channel::userList(void)
 	for (size_t i = 0; i < this->_users.size(); i++)
 	{
 		if (this->_users[i]->isIn(this->_admins))
-			res = res + "@" + this->_users[i]->_nickname + " ";
+			res = res + "@" + this->_users[i]->getNickname() + " ";
 		else
-			res = res + this->_users[i]->_nickname + " ";
+			res = res + this->_users[i]->getNickname() + " ";
 	}
 	return (res);
 }
@@ -110,13 +110,13 @@ std::string Channel::modsList(void)
 void Channel::_JOIN(User* user)
 {
 	this->_users.push_back(user);
-	this->ft_sendAll(":" + user->_nickname + "!" + user->_username + "@" + user->_hostname + " JOIN " + this->_name + "\r\n");
+	this->ft_sendAll(":" + user->getNickname() + "!" + user->getUsername() + "@" + user->getHostname() + " JOIN " + this->_name + "\r\n");
 	if (this->_topic.empty())
-		user->ft_send(":" + user->_hostname + " 331 " + this->_name + " " + this->_name + " :No topic is set\r\n");
+		user->ft_send(":" + user->getHostname() + " 331 " + this->_name + " " + this->_name + " :No topic is set\r\n");
 	else
-		user->ft_send(":" + user->_hostname + " 332 " + user->_nickname + " " + this->_name + " :" + this->_topic + "\r\n");
-	user->ft_send(":" + user->_hostname + " 353 " + user->_nickname + " = " + this->_name + " :" + this->userList() + "\r\n");
-	user->ft_send(":" + user->_hostname + " 366 " + user->_nickname + " " + this->_name + " :End of name list\r\n");
+		user->ft_send(":" + user->getHostname() + " 332 " + user->getNickname() + " " + this->_name + " :" + this->_topic + "\r\n");
+	user->ft_send(":" + user->getHostname() + " 353 " + user->getNickname() + " = " + this->_name + " :" + this->userList() + "\r\n");
+	user->ft_send(":" + user->getHostname() + " 366 " + user->getNickname() + " " + this->_name + " :End of name list\r\n");
 }
 
 void Channel::leaveChannel(User* user, std::string mod, std::string msg)
@@ -128,10 +128,10 @@ void Channel::leaveChannel(User* user, std::string mod, std::string msg)
 	if (this->_admins.size() == 0 && this->_users.size() > 0)
 	{
 		this->_admins.push_back(this->_users[0]);
-		this->ft_sendAll(":" + user->_nickname + "!" + user->_username + "@" + user->_hostname + " MODE " + this->_name + " +o " + this->_users[1]->_nickname + "\r\n");
+		this->ft_sendAll(":" + user->getNickname() + "!" + user->getUsername() + "@" + user->getHostname() + " MODE " + this->_name + " +o " + this->_users[1]->getNickname() + "\r\n");
 	}
 	if (user == this->_owner && this->_admins.size() > 0)
 		this->_owner = this->_admins[0];
-	user->ft_send(":" + user->_nickname + "!" + user->_username + "@" + user->_hostname + " " + mod + " " + this->_name + " " + msg + "\r\n");
-	this->ft_sendAll(":" + user->_nickname + "!" + user->_username + "@" + user->_hostname + " " + mod + " " + this->_name + " " + msg + "\r\n");
+	user->ft_send(":" + user->getNickname() + "!" + user->getUsername() + "@" + user->getHostname() + " " + mod + " " + this->_name + " " + msg + "\r\n");
+	this->ft_sendAll(":" + user->getNickname() + "!" + user->getUsername() + "@" + user->getHostname() + " " + mod + " " + this->_name + " " + msg + "\r\n");
 }
