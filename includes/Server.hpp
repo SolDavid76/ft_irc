@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:00:02 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/18 13:22:26 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/18 14:01:44 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,23 @@ class Server
 		int findUser(std::string user);
 		int findChannel(std::string channel);
 		void execCommand(std::vector<std::string> command, User* user);
-	// private:
+
+		/* GETTERS */
+		int getSocket() const { return _socket; }
+		std::string const& getPassword() const { return _password; }
+		std::vector<pollfd>& getFds() { return _fds; }
+		std::vector<User*> const& getUsers() const { return _users; }
+		std::vector<Channel> const& getChannels() const { return _channels; }
+		std::map<std::string, cmdFunction> const& getCommands() const { return _commands; }
+
+		/* SETTERS */
+		void setSocket(int socket) { _socket = socket; }
+		void setPassword(const std::string& password) { _password = password; }
+		void addFds(pollfd fds) { _fds.push_back(fds); }
+		void addUsers(User* users) { _users.push_back(users); }
+		void setChannels(const std::vector<Channel>& channels) { _channels = channels; }
+		void setCommands(const std::map<std::string, cmdFunction>& commands) { _commands = commands; }
+	private:
 		int _socket;
 		std::string _password;
 		std::vector<pollfd> _fds;

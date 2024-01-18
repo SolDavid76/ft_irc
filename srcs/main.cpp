@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/22 14:33:03 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/18 12:54:42 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/18 14:00:58 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,15 +19,6 @@ void handler(int signal)
 	if (signal == SIGQUIT)
 		throw ft_exception("Closing the server !");
 	(void)signal;
-}
-
-void User::readSocket(void)
-{
-	std::vector<char> tmp(512, 0);
-
-	if (recv(this->_socket.fd, tmp.data(), tmp.size() - 1, 0) == 0)
-		this->_buffer.append("QUIT\r\n");
-	this->_buffer.append(tmp.data());
 }
 
 int main(int ac, char** av)
@@ -46,29 +37,29 @@ int main(int ac, char** av)
 		Server serv(atoi(av[1]), av[2]);
 		while (1)
 		{
-			poll(&serv._fds[0], serv._fds.size(), -1);
+			poll(&(serv.getFds()[0]), serv.getFds().size(), -1);
 
-			if (serv._fds[0].revents & POLLIN)
+			if (serv.getFds()[0].revents & POLLIN)
 			{
-				User* newUser = new User(accept(serv._socket, NULL, NULL));
+				User* newUser = new User(accept(serv.getSocket(), NULL, NULL));
 				if (newUser->getSocket().fd == -1)
 				{
 					std::cerr << "accept error" << std::endl;
 					delete (newUser);
 					continue;
 				}
-				serv._fds.push_back(newUser->getSocket());
-				serv._users.push_back(newUser);
+				serv.addFds(newUser->getSocket());
+				serv.addUsers(newUser);
 			}
-			for (size_t i = 1; i < serv._fds.size(); i++)
+			for (size_t i = 1; i < serv.getFds().size(); i++)
 			{
-				if (serv._fds[i].revents & POLLIN)
+				if (serv.getFds()[i].revents & POLLIN)
 				{
 					try
 					{
-						serv._users[i - 1]->readSocket();
-						while (serv._users[i - 1]->getBuffer().find("\r\n") != std::string::npos)
-							serv.execCommand(ft_split(serv._users[i - 1]->getBuffer()), serv._users[i - 1]);
+						serv.getUsers()[i - 1]->readSocket();
+						while (serv.getUsers()[i - 1]->getBuffer().find("\r\n") != std::string::npos)
+							serv.execCommand(ft_split(serv.getUsers()[i - 1]->getBuffer()), serv.getUsers()[i - 1]);
 					}
 					catch(std::exception const& e)
 					{

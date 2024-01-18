@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/16 11:50:31 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/18 13:52:25 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,15 @@ User& User::operator=(User const& src)
 User::~User(void)
 {
 	close(this->_socket.fd);
+}
+
+void User::readSocket(void)
+{
+	std::vector<char> tmp(512, 0);
+
+	if (recv(this->_socket.fd, tmp.data(), tmp.size() - 1, 0) == 0)
+		this->_buffer.append("QUIT\r\n");
+	this->_buffer.append(tmp.data());
 }
 
 bool User::isAuthentified(void)

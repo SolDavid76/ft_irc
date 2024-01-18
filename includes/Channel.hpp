@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:39:01 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/18 13:33:01 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/18 13:50:12 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,24 +32,24 @@ class Channel
 		int findUser(std::string name);
 
 		/* GETTERS */
-		const std::string& getName() const { return _name; }
+		std::string const& getName() const { return _name; }
 		bool getInvitationOnly() const { return _invitationOnly; }
 		bool getTopicChangeable() const { return _topicCanBeChange; }
-		const std::string& getPassword() const { return _password; }
+		std::string const& getPassword() const { return _password; }
 		size_t getMaxUsers() const { return _maxUsers; }
-		const std::string& getTopic() const { return _topic; }
+		std::string const& getTopic() const { return _topic; }
 		User* getOwner() const { return _owner; }
-		const std::vector<User*>& getInvitedUsers() const { return _invited; }
-		const std::vector<User*>& getUsers() const { return _users; }
-		const std::vector<User*>& getAdmins() const { return _admins; }
+		std::vector<User*> getInvitedUsers() const { return _invited; }
+		std::vector<User*> getUsers() const { return _users; }
+		std::vector<User*> getAdmins() const { return _admins; }
 
 		/* SETTERS */
-		void setName(const std::string& name) { _name = name; }
+		void setName(std::string const& name) { _name = name; }
 		void setInvitationOnly(bool invitationOnly) { _invitationOnly = invitationOnly; }
 		void setTopicChangeable(bool topicChangeable) { _topicCanBeChange = topicChangeable; }
-		void setPassword(const std::string& password) { _password = password; }
+		void setPassword(std::string const& password) { _password = password; }
 		void setMaxUsers(size_t maxUsers) { _maxUsers = maxUsers; }
-		void setTopic(const std::string& topic) { _topic = topic; }
+		void setTopic(std::string const& topic) { _topic = topic; }
 		void setOwner(User* owner) { _owner = owner; }
 		void addInvitedUsers(User* invited) { _invited.push_back(invited); }
 		void addUsers(User* users) { _users.push_back(users); }

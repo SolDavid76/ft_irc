@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/18 13:41:44 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/18 14:15:23 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,7 +180,7 @@ void Server::_USER(std::vector<std::string>& command, User* user)
 			user->setUsername(command[1]);
 			user->setHostname(command[3]);
 			user->ft_send(":" + user->getHostname() + " 001 " + user->getNickname() + " :Welcome\r\n");
-			std::cout << "Someone connected !" << std::endl;
+			std::cout << user->getNickname() + " connected !" << std::endl;
 		}
 	}
 	else
@@ -242,7 +242,12 @@ void Server::jarvis(std::vector<std::string>& command, User* user)
 	else if (command[2] == "!quoi")
 		user->ft_send(":Jarvis@STARK.INC PRIVMSG " + user->getNickname() + " :FEUR\r\n");
 	else if (command[2] == "!meow")
-		user->ft_send(":Jarvis@STARK.INC PRIVMSG " + user->getNickname() + " :MDR t'a cru j'ai tout fait ? (pour Enzo)\r\n");
+	{
+		user->ft_send(":Jarvis@STARK.INC PRIVMSG " + user->getNickname() + " :  /\\_/\\\r\n");
+		user->ft_send(":Jarvis@STARK.INC PRIVMSG " + user->getNickname() + " : ( o.o )\r\n");
+		user->ft_send(":Jarvis@STARK.INC PRIVMSG " + user->getNickname() + " :  > ^ <\r\n");
+		user->ft_send(":Jarvis@STARK.INC PRIVMSG " + user->getNickname() + " : MEEEOWW\r\n");
+	}
 	else if (command[2] == "!coinflip")
 		user->ft_send(":Jarvis@STARK.INC PRIVMSG " + user->getNickname() + " :" + (std::rand() % 2 ? "Heads\r\n" : "Tails\r\n"));
 	else if (command[2] == "!stark")
@@ -337,10 +342,11 @@ void Server::_QUIT(std::vector<std::string>& command, User* user)
 					this->_channels.erase(this->_channels.begin() + i);
 		}
 	}
+	std::string msg = user->getNickname() + " disconnected !";
 	this->_fds.erase(this->_fds.begin() + this->findUser(user) + 1);
 	this->_users.erase(this->_users.begin() + this->findUser(user));
 	delete (user);
-	throw ft_exception("Someone disconnected ! (QUIT)");
+	throw ft_exception(msg);
 }
 
 void Server::_INVITE(std::vector<std::string>& command, User* user)
