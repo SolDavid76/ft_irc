@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/18 14:15:23 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/19 15:01:08 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,11 +115,6 @@ bool isAuthenticationFunction(std::string const& input)
 
 void Server::execCommand(std::vector<std::string> command, User* user)
 {
-	std::cout << (user->getNickname().empty() ? "#" + to_string(user->getId()) : user->getNickname()) << ": ";
-	for (size_t i = 0; i < command.size(); i++)
-		std::cout << command[i] << (i != command.size() - 1 ? " " : "");
-	std::cout << ";" << std::endl;
-
 	user->setBuffer(user->getBuffer().substr(user->getBuffer().find("\r\n") + 2, user->getBuffer().size()));
 	if (command.size() != 0 && (isAuthenticationFunction(command[0]) || user->isAuthentified()))
 	{
@@ -342,7 +337,7 @@ void Server::_QUIT(std::vector<std::string>& command, User* user)
 					this->_channels.erase(this->_channels.begin() + i);
 		}
 	}
-	std::string msg = user->getNickname() + " disconnected !";
+	std::string msg = (user->getNickname().empty() ? "#" + to_string(user->getId()) : user->getNickname()) + " disconnected !";
 	this->_fds.erase(this->_fds.begin() + this->findUser(user) + 1);
 	this->_users.erase(this->_users.begin() + this->findUser(user));
 	delete (user);

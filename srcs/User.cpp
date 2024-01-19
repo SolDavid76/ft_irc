@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 16:24:56 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/18 13:52:25 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/19 14:56:42 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,15 +57,14 @@ void User::readSocket(void)
 	std::vector<char> tmp(512, 0);
 
 	if (recv(this->_socket.fd, tmp.data(), tmp.size() - 1, 0) == 0)
-		this->_buffer.append("QUIT\r\n");
+		this->_buffer = "QUIT\r\n";
 	this->_buffer.append(tmp.data());
+	std::cout << (this->_nickname.empty() ? "#" + to_string(this->_id) : this->_nickname) << ": " << tmp.data() << std::endl;
 }
 
 bool User::isAuthentified(void)
 {
-	if (!this->_irssi || this->_password.empty() || this->_nickname.empty() || this->_username.empty())
-		return (false);
-	return (true);
+	return (this->_irssi && !this->_password.empty() && !this->_nickname.empty() && !this->_username.empty());
 }
 
 void User::ft_send(std::string msg)

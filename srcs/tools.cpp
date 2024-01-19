@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/23 20:32:33 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/17 23:39:17 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/19 14:49:19 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ std::vector<std::string> ft_split(std::string const& input)
 		if (tmp[0] != ':' && tmp.size() != info.size())
 		{
 			res.push_back(tmp);
-			info.erase(0, tmp.size() + info.find_first_not_of(" \t\n\v\f\r") + 1);
+			info.erase(0, info.find_first_not_of(" \t\n\v\f\r", tmp.size()));
 		}
 		else
 		{
