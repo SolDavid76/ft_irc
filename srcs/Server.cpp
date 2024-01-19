@@ -6,7 +6,7 @@
 /*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/19 15:01:08 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/19 15:17:35 by djanusz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,7 +198,7 @@ void Server::_PRIVMSG(std::vector<std::string>& command, User* user)
 		{
 			int i = findUser(command[1]);
 			if (i != -1)
-				this->_users[i]->ft_send(":" + user->getNickname() + "@" + user->getHostname() + " PRIVMSG " + this->_users[findUser(command[1])]->getNickname() + " " + command[2] + "\r\n");
+				this->_users[i]->ft_send(":" + user->getNickname() + "@" + user->getHostname() + " PRIVMSG " + this->_users[findUser(command[1])]->getNickname() + " :" + command[2] + "\r\n");
 			else if (command[1] == "Jarvis")
 				this->jarvis(command, user);
 			else
@@ -208,7 +208,7 @@ void Server::_PRIVMSG(std::vector<std::string>& command, User* user)
 		{
 			int x = findChannel(command[1]);
 			if (x != -1 && user->isIn(this->_channels[x].getUsers()))
-				this->_channels[x].ft_sendAll(user, ":" + user->getNickname() + "@" + user->getHostname() + " PRIVMSG " + this->_channels[x].getName() + " " + command[2] + "\r\n");
+				this->_channels[x].ft_sendAll(user, ":" + user->getNickname() + "@" + user->getHostname() + " PRIVMSG " + this->_channels[x].getName() + " :" + command[2] + "\r\n");
 			else
 			{
 				if (x == -1)
