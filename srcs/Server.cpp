@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/19 15:17:35 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/22 10:40:50 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -393,7 +393,7 @@ void Server::_KICK(std::vector<std::string>& command, User* user)
 		else if ((i = this->_channels[x].findUser(command[2])) != -1 && !this->_channels[x].getUsers()[i]->isIn(this->_channels[x].getAdmins()))
 		{
 			this->_channels[x].ft_sendAll(":" + user->getNickname() + + "@" + user->getHostname() + " KICK " + " " + command[1] + " " + command[2] + "\r\n");
-			this->_channels[x].getUsers().erase(this->_channels[x].getUsers().begin() + this->_channels[x].findUser(command[2]));
+			this->_channels[x].eraseUser(i);
 		}
 		else if (i == -1)
 			user->ft_send(":" + user->getHostname() + " 442 " + command[1] + " " + user->getNickname() + " :User not on that channel\r\n");
@@ -459,7 +459,7 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 									user->ft_send(":" + user->getHostname() + " 4242 " + command[1] + " " + user->getNickname() + " :is already an operator\r\n");
 								else if (this->_users[y] != this->_channels[x].getOwner() && this->_users[y]->isIn(this->_channels[x].getAdmins()) && user->getId() == this->_channels[x].getOwner()->getId())
 								{
-									this->_channels[x].getAdmins().erase(this->_channels[x].getAdmins().begin() + this->_users[y]->findUserIn(this->_channels[x].getAdmins()));
+									this->_channels[x].eraseAdmin(y);
 									this->_channels[x].ft_sendAll(":" + user->getNickname() + "@" + user->getHostname() + " MODE " + this->_channels[x].getName() + " -o :" + this->_users[y]->getNickname() + "\r\n");
 								}
 								else if (!this->_users[y]->isIn(this->_channels[x].getAdmins()))

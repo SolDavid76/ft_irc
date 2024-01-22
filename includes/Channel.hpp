@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:39:01 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/18 13:50:12 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/22 10:40:19 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ class Channel
 
 		void _JOIN(User* user);
 		void leaveChannel(User* user, std::string mod, std::string msg);
+		void eraseUser(int i);
+		void eraseAdmin(int i);
 		std::string userList(void);
 		std::string modsList(void);
 		void ft_sendAll(std::string msg);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: djanusz <djanusz@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:44:35 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/18 13:08:45 by djanusz          ###   ########.fr       */
+/*   Updated: 2024/01/22 10:40:12 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,4 +134,14 @@ void Channel::leaveChannel(User* user, std::string mod, std::string msg)
 		this->_owner = this->_admins[0];
 	user->ft_send(":" + user->getNickname() + "!" + user->getUsername() + "@" + user->getHostname() + " " + mod + " " + this->_name + " " + msg + "\r\n");
 	this->ft_sendAll(":" + user->getNickname() + "!" + user->getUsername() + "@" + user->getHostname() + " " + mod + " " + this->_name + " " + msg + "\r\n");
+}
+
+void Channel::eraseUser(int i)
+{
+	this->_users.erase(this->_users.begin() + i);
+}
+
+void Channel::eraseAdmin(int i)
+{
+	this->_admins.erase(this->_admins.begin() + this->_users[i]->findUserIn(this->_admins));
 }
