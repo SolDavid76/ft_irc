@@ -6,7 +6,7 @@
 /*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:39:01 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/22 10:40:19 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/23 11:09:59 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ class Channel
 		void eraseUser(int i);
 		void eraseAdmin(int i);
 		std::string userList(void);
-		std::string modsList(void);
 		void ft_sendAll(std::string msg);
 		void ft_sendAll(User* user, std::string msg);
 		int findUser(std::string name);

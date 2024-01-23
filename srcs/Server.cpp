@@ -6,7 +6,7 @@
 /*   By: ennollet <ennollet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/21 14:01:51 by djanusz           #+#    #+#             */
-/*   Updated: 2024/01/22 10:40:50 by ennollet         ###   ########.fr       */
+/*   Updated: 2024/01/23 11:09:27 by ennollet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -448,23 +448,23 @@ void Server::_MODE(std::vector<std::string>& command, User* user)
 						if (2 + j <= command.size() - 1)
 						{
 						int y;
-						if ((y = findUser(command[2 + j++])) != -1 && this->_users[y]->isIn(this->_channels[x].getUsers()))
+						if ((y = this->_channels[x].findUser(command[2 + j++])) != -1 && this->_users[y]->isIn(this->_channels[x].getUsers()))
 							{
-								if (option && !this->_users[y]->isIn(this->_channels[x].getAdmins()))
+								if (option && !this->_channels[x].getUsers()[y]->isIn(this->_channels[x].getAdmins()))
 								{
-									this->_channels[x].addAdmins(this->_users[y]);
-									this->_channels[x].ft_sendAll(":" + user->getNickname() + "@" + user->getHostname() + " MODE " + this->_channels[x].getName() + " +o :" + this->_users[y]->getNickname() + "\r\n");
+									this->_channels[x].addAdmins(this->_channels[x].getUsers()[y]);
+									this->_channels[x].ft_sendAll(":" + user->getNickname() + "@" + user->getHostname() + " MODE " + this->_channels[x].getName() + " +o :" + this->_channels[x].getUsers()[y]->getNickname() + "\r\n");
 								}
 								else if (option)
 									user->ft_send(":" + user->getHostname() + " 4242 " + command[1] + " " + user->getNickname() + " :is already an operator\r\n");
-								else if (this->_users[y] != this->_channels[x].getOwner() && this->_users[y]->isIn(this->_channels[x].getAdmins()) && user->getId() == this->_channels[x].getOwner()->getId())
+								else if (this->_channels[x].getUsers()[y] != this->_channels[x].getOwner() && this->_channels[x].getUsers()[y]->isIn(this->_channels[x].getAdmins()) && user->getId() == this->_channels[x].getOwner()->getId())
 								{
 									this->_channels[x].eraseAdmin(y);
-									this->_channels[x].ft_sendAll(":" + user->getNickname() + "@" + user->getHostname() + " MODE " + this->_channels[x].getName() + " -o :" + this->_users[y]->getNickname() + "\r\n");
+									this->_channels[x].ft_sendAll(":" + user->getNickname() + "@" + user->getHostname() + " MODE " + this->_channels[x].getName() + " -o :" + this->_channels[x].getUsers()[y]->getNickname() + "\r\n");
 								}
-								else if (!this->_users[y]->isIn(this->_channels[x].getAdmins()))
+								else if (!this->_channels[x].getUsers()[y]->isIn(this->_channels[x].getAdmins()))
 									user->ft_send(":" + user->getHostname() + " 4242 " + command[1] + " " + user->getNickname() + " :You can't downgrade this user, he don't have privilege\r\n");
-								else if (this->_users[y]->isIn(this->_channels[x].getAdmins()))
+								else if (this->_channels[x].getUsers()[y]->isIn(this->_channels[x].getAdmins()))
 									user->ft_send(":" + user->getHostname() + " 4242 " + command[1] + " " + user->getNickname() + " :You can't dowwngrade this user, you have the same privilege \r\n");
 							}
 						else if (y == -1)
